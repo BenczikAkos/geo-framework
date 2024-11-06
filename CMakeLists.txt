@@ -56,6 +56,7 @@ add_executable(geo-framework WIN32
   bezier.cc
   main.cc
   mesh.cc
+  dupin.cc
   object.cc
   viewer.cc
   visualization.cc

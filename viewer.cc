@@ -3,6 +3,7 @@
 
 #include "bezier.hh"
 #include "mesh.hh"
+#include "dupin.hh"
 #include "viewer.hh"
 
 Viewer::Viewer(QWidget *parent) : QGLViewer(parent) {
@@ -66,6 +67,8 @@ bool Viewer::open(std::string filename) {
   std::shared_ptr<Object> surface;
   if (filename.ends_with(".bzr"))
     surface = std::make_shared<Bezier>(filename);
+  else if (filename.ends_with(".txt"))
+      surface = std::make_shared<Dupin>(filename);
   else
     surface = std::make_shared<Mesh>(filename);
   if (!surface->valid())
