@@ -41,6 +41,8 @@ protected:
 private:
   void updateMeanMinMax();
   void setupCamera();
+  void findAndColorSpecialTriangles();
+  void popupDialog(double maxAreaCircumference, double minCircumferenceArea);
 
   std::vector<std::shared_ptr<Object>> objects;
   Visualization vis;

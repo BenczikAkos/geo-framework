@@ -1,4 +1,5 @@
 #include "object.hh"
+#include <algorithm>
 
 #ifdef USE_JET_FITTING
 #include "jet-wrapper.hh"
@@ -21,9 +22,7 @@ void Object::draw(const Visualization &vis) const {
   glPolygonOffset(1, 1);
 
   if (vis.show_solid || vis.show_wireframe) {
-    if (vis.type == VisType::PLAIN)
-      glColor3d(1.0, 1.0, 1.0);
-    else if (vis.type == VisType::ISOPHOTES) {
+    if (vis.type == VisType::ISOPHOTES) {
       glBindTexture(GL_TEXTURE_2D, vis.current_isophote_texture);
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
       glEnable(GL_TEXTURE_2D);
@@ -37,6 +36,12 @@ void Object::draw(const Visualization &vis) const {
       glEnable(GL_TEXTURE_1D);
     }
     for (auto f : mesh.faces()) {
+        if (vis.type == VisType::PLAIN) {
+            if(std::find(vis.specialFaces.begin(), vis.specialFaces.end(), f) != vis.specialFaces.end())
+                glColor3d(1.0, 0.0, 0.0);
+            else
+                glColor3d(1.0, 1.0, 1.0);
+        }
       glBegin(GL_POLYGON);
       for (auto v : f.vertices()) {
         if (vis.type == VisType::MEAN)

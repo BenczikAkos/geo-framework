@@ -24,6 +24,7 @@ struct Visualization {
   // Flags
   VisType type;
   bool show_control_points, show_solid, show_wireframe;
+  std::vector<BaseMesh::FaceHandle> specialFaces;
 
   // Mean curvature
   double mean_min, mean_max, cutoff_ratio;

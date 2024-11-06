@@ -1,4 +1,5 @@
 #include <QtGui/QKeyEvent>
+#include <QtWidgets>
 
 #include "bezier.hh"
 #include "mesh.hh"
@@ -206,6 +207,9 @@ void Viewer::postSelection(const QPoint &p) {
 void Viewer::keyPressEvent(QKeyEvent *e) {
   if (e->modifiers() == Qt::NoModifier)
     switch (e->key()) {
+    case Qt::Key_Q:
+        this->findAndColorSpecialTriangles();
+        break;
     case Qt::Key_R:
       for (auto o : objects)
         o->reload();
@@ -383,6 +387,66 @@ void Viewer::updateMeanMinMax() {
   size_t k = (double)n * vis.cutoff_ratio;
   vis.mean_min = std::min(mean[k ? k-1 : 0], 0.0);
   vis.mean_max = std::max(mean[k ? n-k : n-1], 0.0);
+}
+
+double triangleArea(const BaseMesh::Point& p0, const BaseMesh::Point& p1, const BaseMesh::Point& p2) {
+    BaseMesh::Point v1 = p1 - p0;
+    BaseMesh::Point v2 = p2 - p0;
+    return 0.5 * ((v1 % v2).norm());
+}
+
+double triangleCircumference(const BaseMesh::Point& p0, const BaseMesh::Point& p1, const BaseMesh::Point& p2) {
+    double side1 = (p1 - p0).norm();
+    double side2 = (p2 - p1).norm();
+    double side3 = (p0 - p2).norm();
+    return side1 + side2 + side3;
+}
+
+void Viewer::popupDialog(double maxAreaCircumference, double minCircumferenceArea){
+    auto dlg = std::make_unique<QDialog>(this);
+    dlg->setWindowTitle("Exercise no.4 specific data");
+    auto layout = std::make_unique<QVBoxLayout>();
+    auto label1 = std::make_unique<QLabel>("Circumference of the triangle with the maximum area: " + QString::number(maxAreaCircumference));
+    layout->addWidget(label1.get());
+    auto label2 = std::make_unique<QLabel>("Area of the triangle with the minimum circumference: " + QString::number(minCircumferenceArea));
+    layout->addWidget(label2.get());
+    auto okButton = std::make_unique<QPushButton>("OK");
+    connect(okButton.get(), &QPushButton::clicked, dlg.get(), &QDialog::accept);
+    layout->addWidget(okButton.get());
+    dlg->setLayout(layout.release());
+    dlg->exec();
+}
+
+void Viewer::findAndColorSpecialTriangles() {
+    double maxArea = -1.0f; BaseMesh::FaceHandle maxAreaFace; double maxAreaCircumference = 0.0f;
+    double minCircumference = std::numeric_limits<double>::max(); BaseMesh::FaceHandle minCircumferenceFace; double minCircumferenceArea = 0.0f;
+    for (auto o : objects){
+        const auto &mesh = o->baseMesh();
+        for (BaseMesh::FaceIter f_it = mesh.faces_begin(); f_it != mesh.faces_end(); ++f_it) {
+            BaseMesh::FaceVertexIter fv_it = mesh.cfv_iter(*f_it);
+            BaseMesh::Point p0 = mesh.point(*fv_it); ++fv_it;
+            BaseMesh::Point p1 = mesh.point(*fv_it); ++fv_it;
+            BaseMesh::Point p2 = mesh.point(*fv_it);
+
+            double area = triangleArea(p0, p1, p2);
+            double circumference = triangleCircumference(p0, p1, p2);
+
+            if (area > maxArea) {
+                maxArea = area;
+                maxAreaFace = *f_it;
+                maxAreaCircumference = circumference;
+            }
+            if (circumference < minCircumference) {
+                minCircumference = circumference;
+                minCircumferenceFace = *f_it;
+                minCircumferenceArea = area;
+            }
+        }
+    }
+    popupDialog(maxAreaCircumference, minCircumferenceArea);
+    vis.specialFaces.clear();
+    vis.specialFaces.push_back(maxAreaFace);
+    vis.specialFaces.push_back(minCircumferenceFace);
 }
 
 void Viewer::setupCamera() {
