@@ -9,16 +9,11 @@ Window::Window(QApplication *parent) :
 {
   setWindowTitle(tr("Geometry Framework"));
   setStatusBar(new QStatusBar);
-  progress = new QProgressBar;
-  progress->setMinimum(0); progress->setMaximum(100);
-  progress->hide();
-  statusBar()->addPermanentWidget(progress);
 
   viewer = new Viewer(this);
-  connect(viewer, &Viewer::startComputation, this, &Window::startComputation);
-  connect(viewer, &Viewer::midComputation, this, &Window::midComputation);
-  connect(viewer, &Viewer::endComputation, this, &Window::endComputation);
   setCentralWidget(viewer);
+
+  setupUI();
 
   auto openAction = new QAction(tr("&Open"), this);
   openAction->setShortcut(tr("Ctrl+O"));
@@ -200,19 +195,32 @@ void Window::setSlicing() {
   }
 }
 
-void Window::startComputation(QString message) {
-  statusBar()->showMessage(message);
-  progress->setValue(0);
-  progress->show();
-  parent->processEvents(QEventLoop::ExcludeUserInputEvents);
-}
+void Window::setupUI() {
+  sliderA = new QSlider(Qt::Horizontal);
+  sliderB = new QSlider(Qt::Horizontal);
+  sliderC = new QSlider(Qt::Horizontal);
+  sliderD = new QSlider(Qt::Horizontal);
 
-void Window::midComputation(int percent) {
-  progress->setValue(percent);
-  parent->processEvents(QEventLoop::ExcludeUserInputEvents);
-}
+  sliderA->setRange(0, 10);
+  sliderB->setRange(0, 10);
+  sliderC->setRange(0, 10);
+  sliderD->setRange(0, 10);
 
-void Window::endComputation() {
-  progress->hide();
-  statusBar()->clearMessage();
+  auto *sliderLayout = new QVBoxLayout;
+  sliderLayout->addWidget(new QLabel(tr("A")));
+  sliderLayout->addWidget(sliderA);
+  sliderLayout->addWidget(new QLabel(tr("B")));
+  sliderLayout->addWidget(sliderB);
+  sliderLayout->addWidget(new QLabel(tr("C")));
+  sliderLayout->addWidget(sliderC);
+  sliderLayout->addWidget(new QLabel(tr("D")));
+  sliderLayout->addWidget(sliderD);
+
+  auto *sliderWidget = new QWidget;
+  sliderWidget->setLayout(sliderLayout);
+
+  auto *dock = new QDockWidget(tr("Sliders"), this);
+  dock->setWidget(sliderWidget);
+  addDockWidget(Qt::RightDockWidgetArea, dock);
+  
 }

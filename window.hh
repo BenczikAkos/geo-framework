@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QSlider>
 
 #include "viewer.hh"
 
@@ -18,13 +19,14 @@ private slots:
   void setCutoff();
   void setRange();
   void setSlicing();
-  void startComputation(QString message);
-  void midComputation(int percent);
-  void endComputation();
+  void setupUI();
 
 private:
   QApplication *parent;
   Viewer *viewer;
-  QProgressBar *progress;
+  QSlider *sliderA;
+  QSlider *sliderB;
+  QSlider *sliderC;
+  QSlider *sliderD;
   QString last_directory;
 };
