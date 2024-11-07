@@ -23,11 +23,6 @@ public:
   void deleteObjects();
   bool open(std::string filename);
 
-signals:
-  void startComputation(QString message);
-  void midComputation(int percent);
-  void endComputation();
-
 protected:
   virtual void init() override;
   virtual void draw() override;
@@ -41,8 +36,6 @@ protected:
 private:
   void updateMeanMinMax();
   void setupCamera();
-  void findAndColorSpecialTriangles();
-  void popupDialog(double maxAreaCircumference, double minCircumferenceArea);
 
   std::vector<std::shared_ptr<Object>> objects;
   Visualization vis;
