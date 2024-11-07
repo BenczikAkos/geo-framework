@@ -196,31 +196,56 @@ void Window::setSlicing() {
 }
 
 void Window::setupUI() {
-  sliderA = new QSlider(Qt::Horizontal);
-  sliderB = new QSlider(Qt::Horizontal);
-  sliderC = new QSlider(Qt::Horizontal);
-  sliderD = new QSlider(Qt::Horizontal);
+  spinBoxA = new QSpinBox;
+  spinBoxB = new QSpinBox;
+  spinBoxC = new QSpinBox;
+  spinBoxD = new QSpinBox;
+  int min = 0; int max = 10;
 
-  sliderA->setRange(0, 10);
-  sliderB->setRange(0, 10);
-  sliderC->setRange(0, 10);
-  sliderD->setRange(0, 10);
+  spinBoxA->setRange(min, max);
+  connect(spinBoxA, &QSpinBox::valueChanged, this, &Window::setDupinA);
+  spinBoxB->setRange(min, max);
+  connect(spinBoxB, &QSpinBox::valueChanged, this, &Window::setDupinB);
+  spinBoxC->setRange(min, max);
+  connect(spinBoxC, &QSpinBox::valueChanged, this, &Window::setDupinC);
+  spinBoxD->setRange(min, max);
+  connect(spinBoxD, &QSpinBox::valueChanged, this, &Window::setDupinD);
 
-  auto *sliderLayout = new QVBoxLayout;
-  sliderLayout->addWidget(new QLabel(tr("A")));
-  sliderLayout->addWidget(sliderA);
-  sliderLayout->addWidget(new QLabel(tr("B")));
-  sliderLayout->addWidget(sliderB);
-  sliderLayout->addWidget(new QLabel(tr("C")));
-  sliderLayout->addWidget(sliderC);
-  sliderLayout->addWidget(new QLabel(tr("D")));
-  sliderLayout->addWidget(sliderD);
+  auto *spinBoxLayout = new QVBoxLayout;
+  spinBoxLayout->addWidget(new QLabel(tr("A")));
+  spinBoxLayout->addWidget(spinBoxA);
+  spinBoxLayout->addWidget(new QLabel(tr("B")));
+  spinBoxLayout->addWidget(spinBoxB);
+  spinBoxLayout->addWidget(new QLabel(tr("C")));
+  spinBoxLayout->addWidget(spinBoxC);
+  spinBoxLayout->addWidget(new QLabel(tr("D")));
+  spinBoxLayout->addWidget(spinBoxD);
 
-  auto *sliderWidget = new QWidget;
-  sliderWidget->setLayout(sliderLayout);
+  auto *spinBoxWidget = new QWidget;
+  spinBoxWidget->setLayout(spinBoxLayout);
 
-  auto *dock = new QDockWidget(tr("Sliders"), this);
-  dock->setWidget(sliderWidget);
+  auto *dock = new QDockWidget(tr("Parameters"), this);
+  dock->setWidget(spinBoxWidget);
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
+}
+
+void Window::setDupinA(int value) {
+  viewer->setDupinA(value / 10.0);
+  viewer->update();
+}
+
+void Window::setDupinB(int value) {
+  viewer->setDupinB(value / 10.0);
+  viewer->update();
+}
+
+void Window::setDupinC(int value) {
+  viewer->setDupinC(value / 10.0);
+  viewer->update();
+}
+
+void Window::setDupinD(int value) {
+  viewer->setDupinD(value / 10.0);
+  viewer->update();
 }

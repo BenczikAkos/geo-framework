@@ -19,6 +19,10 @@ public:
   const double *getSlicingDir() const;
   void setSlicingDir(double x, double y, double z);
   double getSlicingScaling() const;
+  void setDupinA(float value);
+  void setDupinB(float value);
+  void setDupinC(float value);
+  void setDupinD(float value);
   void setSlicingScaling(double scaling);
   void deleteObjects();
   bool open(std::string filename);

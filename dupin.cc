@@ -77,6 +77,26 @@ bool Dupin::reload() {
     return true;
 }
 
+void Dupin::setA(float value) {
+    a = value;
+    updateBaseMesh();
+}
+
+void Dupin::setB(float value) {
+    b = value;
+    updateBaseMesh();
+}
+
+void Dupin::setC(float value) {
+    c = value;
+    updateBaseMesh();
+}
+
+void Dupin::setD(float value) {
+    d = value;
+    updateBaseMesh();
+}
+
 float Dupin::calculateX(float u, float v) const {
     float numerator = d * (c - a * std::cos(u) * std::cos(v)) +  b * b * std::cos(u);
     float denominator = a - c * std::cos(u) * std::cos(v);

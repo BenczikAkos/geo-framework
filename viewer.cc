@@ -210,9 +210,6 @@ void Viewer::postSelection(const QPoint &p) {
 void Viewer::keyPressEvent(QKeyEvent *e) {
   if (e->modifiers() == Qt::NoModifier)
     switch (e->key()) {
-    case Qt::Key_Q:
-        this->findAndColorSpecialTriangles();
-        break;
     case Qt::Key_R:
       for (auto o : objects)
         o->reload();
@@ -411,5 +408,41 @@ void Viewer::setupCamera() {
   setSelectedName(-1);
   axes.shown = false;
 
+  update();
+}
+
+void Viewer::setDupinA(float value) {
+  if (objects.empty())
+    return;
+  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
+  if (dupin)
+    dupin->setA(value);
+  update();
+}
+
+void Viewer::setDupinB(float value) {
+  if (objects.empty())
+    return;
+  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
+  if (dupin)
+    dupin->setB(value);
+  update();
+}
+
+void Viewer::setDupinC(float value) {
+  if (objects.empty())
+    return;
+  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
+  if (dupin)
+    dupin->setC(value);
+  update();
+}
+
+void Viewer::setDupinD(float value) {
+  if (objects.empty())
+    return;
+  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
+  if (dupin)
+    dupin->setD(value);
   update();
 }

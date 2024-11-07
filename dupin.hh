@@ -12,6 +12,10 @@ public:
   virtual void movement(int selected, const Vector &pos) override;
   virtual void updateBaseMesh() override;
   virtual bool reload() override;
+  void setA(float value);
+  void setB(float value);
+  void setC(float value);
+  void setD(float value);  
 private:
   float a, b, c, d = 0.0f;
   std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
