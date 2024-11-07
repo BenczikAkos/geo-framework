@@ -56,6 +56,8 @@ Window::Window(QApplication *parent) :
   visMenu->addAction(cutoffAction);
   visMenu->addAction(rangeAction);
   visMenu->addAction(slicingAction);
+
+  viewer->open("../../../params.txt");
 }
 
 void Window::open(bool clear_others) {

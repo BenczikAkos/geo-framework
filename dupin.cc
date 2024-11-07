@@ -32,26 +32,33 @@ void Dupin::updateBaseMesh() {
     mesh.clear();
     std::vector<BaseMesh::VertexHandle> handles, tri;
     for (size_t i = 0; i < resolution.first; ++i) {
-        float u = range.first + (range.second - range.first) * i / (resolution.first - 1);
+        float u = range.first + (range.second - range.first) * i / resolution.first;
         for (size_t j = 0; j < resolution.second; ++j) {
-            float v = range.first + (range.second - range.first) * j / (resolution.second - 1);
+            float v = range.first + (range.second - range.first) * j / resolution.second;
             Vector p(calculateX(u, v), calculateY(u, v), calculateZ(u, v));
             handles.push_back(mesh.add_vertex(p));
         }
+        // Adding the starter point to the end
+        handles.push_back(handles[i * (resolution.second + 1)]);
     }
-    for (size_t i = 0; i < resolution.first - 1; ++i)
-        for (size_t j = 0; j < resolution.second - 1; ++j) {
+    //Adding the starter circle to the end
+    for(size_t i = 0; i < resolution.second + 1; ++i) {
+        handles.push_back(handles[i]);
+    }
+    for (size_t i = 0; i < resolution.first; ++i) {
+        for (size_t j = 0; j < resolution.second; ++j) {
             tri.clear();
-            tri.push_back(handles[i * resolution.second + j]);
-            tri.push_back(handles[(i + 1) * resolution.second + j + 1]);
-            tri.push_back(handles[i * resolution.second + j + 1]);
+            tri.push_back(handles[i * (resolution.second + 1) + j]);
+            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
+            tri.push_back(handles[i * (resolution.second + 1) + j + 1]);
             mesh.add_face(tri);
             tri.clear();
-            tri.push_back(handles[i * resolution.second + j]);
-            tri.push_back(handles[(i + 1) * resolution.second + j]);
-            tri.push_back(handles[(i + 1) * resolution.second + j + 1]);
+            tri.push_back(handles[i * (resolution.second + 1) + j]);
+            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j]);
+            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
             mesh.add_face(tri);
         }
+    }
     Object::updateBaseMesh(false, false);
 }
 
