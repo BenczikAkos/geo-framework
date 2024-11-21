@@ -1,6 +1,7 @@
 #include <QtGui/QKeyEvent>
 
 #include "bezier.hh"
+#include "bspline.hh"
 #include "mesh.hh"
 #include "viewer.hh"
 
@@ -65,6 +66,8 @@ bool Viewer::open(std::string filename) {
   std::shared_ptr<Object> surface;
   if (filename.ends_with(".bzr"))
     surface = std::make_shared<Bezier>(filename);
+  else if (filename.ends_with(".bspline"))
+    surface = std::make_shared<BSpline>(filename);
   else
     surface = std::make_shared<Mesh>(filename);
   if (!surface->valid())
