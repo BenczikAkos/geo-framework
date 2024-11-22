@@ -94,7 +94,7 @@ void BSpline::updateBaseMesh() {
   curve_points.clear();
   size_t resolution = 100;
   for(size_t i = 0; i < resolution; ++i) {
-    double t = (knots[knots.size()-1] - knots[0]) * i / resolution + knots[0];
+    double t = (knots[knots.size()-1-degree] - knots[degree]) * i / resolution + knots[degree];
     auto bSplinePoint = evaluateBSpline(t);
     mesh.add_vertex(bSplinePoint);
     curve_points.push_back(bSplinePoint);
@@ -116,30 +116,39 @@ bool BSpline::reload() {
     control_points.clear();
 
     // Read the given knot intervals and construct periodic knots
-    std::vector<double> knot_intervals(num_control_points-1);
+    std::vector<double> knot_intervals(num_control_points+1);
     for (double &interval : knot_intervals)
       file >> interval;
     knots.push_back(knot_intervals[0]);
-    knots.push_back(knot_intervals[0]);
-    for(size_t i = 0; i < num_control_points-1; ++i) {
+    for(size_t i = 0; i < degree; ++i){
+      double circularKnot = knots[0] - (knot_intervals[knot_intervals.size() - 1 - i] - knot_intervals[knot_intervals.size() - 2 - i]);
+      knots.insert(knots.begin(), circularKnot);
+    }
+    for(size_t i = 1; i < knot_intervals.size(); ++i) {
       knots.push_back(knot_intervals[i]);
     }
-    knots.push_back(knot_intervals[knot_intervals.size() - 1]);
-    knots.push_back(knot_intervals[knot_intervals.size() - 1]);
+    for(size_t i = 0; i < degree; ++i){
+      double circularKnot = knots[knots.size()-1] + (knot_intervals[i+1] - knot_intervals[i]);
+      knots.push_back(circularKnot);
+    }
     for(size_t i = 0; i < knots.size(); ++i) {
       std::cout<<"knots: "<<knots[i]<<std::endl;
     }
-    // for(size_t i = 0; i < degree*2; ++i) {
-    //     knots.push_back(knots[knots.size() - 1] + (knot_intervals[i + 1] - knot_intervals[i]));
-    // }
     // Read control points
-    control_points.resize(num_control_points);
+    std::vector<Vector> file_control_points(num_control_points);
+    control_points.clear();
     for (size_t i = 0; i < num_control_points; ++i) {
-      file >> control_points[i][0] >> control_points[i][1] >> control_points[i][2];
+      file >> file_control_points[i][0] >> file_control_points[i][1] >> file_control_points[i][2];
     }
-    // for(size_t i = 0; i < degree*2; ++i) {
-    //     control_points.push_back(control_points[i]);
-    // }
+    for(int i = degree-1; i >= 0; --i) {
+        control_points.push_back(file_control_points[file_control_points.size() - 1 - i]);
+    }
+    for(size_t i = 0; i < file_control_points.size(); ++i){
+      control_points.push_back(file_control_points[i]);
+    }
+    for(size_t i = 0; i <= degree; ++i){
+      control_points.push_back(file_control_points[i]);
+    }
 
   } catch (std::ifstream::failure &) {
     return false;
