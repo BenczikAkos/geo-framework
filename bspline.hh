@@ -15,6 +15,7 @@ public:
 
 private:
   size_t degree;
+  size_t num_control_points;
   std::vector<double> knots;
   std::vector<Vector> control_points;
   std::vector<Vector> curve_points;

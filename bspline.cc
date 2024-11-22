@@ -28,13 +28,14 @@ void BSpline::draw(const Visualization &vis) const {
 
     // Draw control polygon
     glBegin(GL_LINE_STRIP);
-    for (const auto &p : control_points)
-      glVertex3dv(p.data());
-    glVertex3dv(control_points[0].data()); // Close the polygon
+    for(int i = degree; i < degree+num_control_points; ++i){
+      glVertex3dv(control_points[i].data());
+    }
+    glVertex3dv(control_points[degree].data()); // Close the polygon
     glEnd();
 
     glLineWidth(1.0);
-    glPointSize(4.0);
+    glPointSize(8.0);
     glColor3d(1.0, 0.0, 1.0);
 
     // Draw control points
@@ -66,6 +67,14 @@ Vector BSpline::postSelection(int selected) {
 
 void BSpline::movement(int selected, const Vector &pos) {
   control_points[selected] = pos;
+  int prev_iteration_CP = selected - num_control_points;
+  if(0 <= prev_iteration_CP && prev_iteration_CP < control_points.size()){
+    control_points[prev_iteration_CP] = pos;
+  }
+  int next_iteration_CP = selected + num_control_points;  
+  if(0 <= next_iteration_CP && next_iteration_CP < control_points.size()){
+    control_points[next_iteration_CP] = pos;
+  }
   updateBaseMesh();
 }
 
@@ -83,7 +92,6 @@ double BSpline::basisFunction(size_t i, size_t k, double t) const {
 Vector BSpline::evaluateBSpline(double t) const {
   Vector result(0.0, 0.0, 0.0);
   for (size_t i = 0; i < control_points.size(); ++i) {
-    std::cout<<"t: " <<t << " basisF: " << basisFunction(i, degree, t) <<std::endl;
     result += control_points[i] * basisFunction(i, degree, t);
   }
   return result;
@@ -98,8 +106,8 @@ void BSpline::updateBaseMesh() {
     auto bSplinePoint = evaluateBSpline(t);
     mesh.add_vertex(bSplinePoint);
     curve_points.push_back(bSplinePoint);
-    std::cout<<"value: "<<t<<" "<<bSplinePoint<<std::endl;
   }
+  curve_points.push_back(curve_points[0]);
   Object::updateBaseMesh();
 }
 
@@ -109,7 +117,6 @@ bool BSpline::reload() {
     std::ifstream file(filename);
     file.exceptions(std::ios::failbit | std::ios::badbit);
 
-    size_t num_control_points;
     file >> degree >> num_control_points;
 
     knots.clear();
@@ -130,9 +137,6 @@ bool BSpline::reload() {
     for(size_t i = 0; i < degree; ++i){
       double circularKnot = knots[knots.size()-1] + (knot_intervals[i+1] - knot_intervals[i]);
       knots.push_back(circularKnot);
-    }
-    for(size_t i = 0; i < knots.size(); ++i) {
-      std::cout<<"knots: "<<knots[i]<<std::endl;
     }
     // Read control points
     std::vector<Vector> file_control_points(num_control_points);
