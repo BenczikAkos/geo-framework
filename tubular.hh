@@ -19,13 +19,14 @@ protected:
   virtual double meanCurvature(BaseMesh::VertexHandle vh) const override;
 private:
     void readBSpline(std::ifstream &input, std::optional<BSpline> &result);
+    std::vector<Vector> vertices;
     double F0(double v) const;
     double F1(double v) const;
     double G0(double v) const;
     double G1(double v) const;
     std::optional<BSpline> c0;
     std::optional<BSpline> c1;
-    double mu = 1;
+    double mu = 1.0;
     int u_resolution = 100;
     int v_resolution = 100;
 };

@@ -15,6 +15,9 @@ public:
   virtual bool reload() override;
   void printKnots() const;
   void printControlPoints() const;
+  Vector evaluateBSplineNormalizedInput(double t) const;
+  Vector dEvaluateBSplineNormalizedInput(double t) const;
+  Vector ddEvaluateBSplineNormalizedInput(double t) const;
 
 private:
   size_t degree;
@@ -25,4 +28,6 @@ private:
 
   double basisFunction(size_t i, size_t k, double t) const;
   Vector evaluateBSpline(double t) const;
+  Vector dEvaluateBSpline(double t) const;
+  Vector ddEvaluateBSpline(double t) const;
 };

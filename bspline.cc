@@ -9,7 +9,6 @@ BSpline::BSpline(std::string filename) : Object(filename) {
 BSpline::BSpline(size_t degree, size_t num_control_points, std::vector<double> &knotsInput, std::vector<Vector> &controlPointsInput) {
   this->degree = degree;
   this->num_control_points = num_control_points;
-  std::cout<<this->degree<<"   "<<this->num_control_points<<std::endl;
   //making circular knot values
   knots.clear();
   knots.push_back(knotsInput[0]);
@@ -128,6 +127,16 @@ Vector BSpline::evaluateBSpline(double t) const {
   return result;
 }
 
+Vector BSpline::dEvaluateBSpline(double t) const {
+  double h = 0.01f;
+  return (evaluateBSpline(t+h) - evaluateBSpline(t-h)) / (2 * h);
+}
+
+Vector BSpline::ddEvaluateBSpline(double t) const {
+  double h = 0.01f;
+  return (evaluateBSpline(t + h) - 2 * evaluateBSpline(t) + evaluateBSpline(t - h)) / (h * h);  
+}
+  
 void BSpline::updateBaseMesh() {
   mesh.clear();
   curve_points.clear();
@@ -191,6 +200,21 @@ bool BSpline::reload() {
 
   updateBaseMesh();
   return true;
+}
+
+Vector BSpline::evaluateBSplineNormalizedInput(double t) const {
+  double knotT = (knots[knots.size()-1-degree] - knots[degree]) * t + knots[degree];
+  return evaluateBSpline(knotT);
+}
+
+Vector BSpline::dEvaluateBSplineNormalizedInput(double t) const {
+  double knotT = (knots[knots.size()-1-degree] - knots[degree]) * t + knots[degree];
+  return dEvaluateBSpline(knotT);
+}
+
+Vector BSpline::ddEvaluateBSplineNormalizedInput(double t) const {
+  double knotT = (knots[knots.size()-1-degree] - knots[degree]) * t + knots[degree];
+  return ddEvaluateBSpline(knotT);
 }
 
 void BSpline::printKnots() const {
