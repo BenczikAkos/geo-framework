@@ -12,7 +12,7 @@ void Tubular::draw(const Visualization &vis) const {
     Object::draw(vis);
     glDisable(GL_LIGHTING);
     glColor3d(1.0, 0.0, 1.0);
-    glPointSize(8.0);
+    glPointSize(3.0);
     glBegin(GL_POINTS);
     for (const auto &p : vertices)
       glVertex3dv(p.data());
@@ -23,10 +23,10 @@ void Tubular::draw(const Visualization &vis) const {
 }
 
 void Tubular::drawWithNames(const Visualization &vis) const {
-    if (!vis.show_control_points)
-        return;
-    c0.value().drawWithNames(vis);
-    c1.value().drawWithNames(vis);
+    // if (!vis.show_control_points)
+    //     return;
+    // c0.value().drawWithNames(vis);
+    // c1.value().drawWithNames(vis);
 }
 
 Vector Tubular::postSelection(int selected) {
@@ -47,12 +47,6 @@ void Tubular::updateBaseMesh() {
             double u = j / (double)u_resolution;
             Vector B0 = c0.value().dEvaluateBSplineNormalizedInput(u)%c0.value().ddEvaluateBSplineNormalizedInput(u);
             Vector B1 = c1.value().dEvaluateBSplineNormalizedInput(u)%c1.value().ddEvaluateBSplineNormalizedInput(u);
-            double f0 = F0(v);
-            double f1 = F1(v);
-            double g0 = G0(v);
-            double g1 = G1(v);
-            Vector c0_u = c0.value().evaluateBSplineNormalizedInput(u);
-            Vector c1_u = c1.value().evaluateBSplineNormalizedInput(u);
             Vector vertex = c0.value().evaluateBSplineNormalizedInput(u) * F0(v)
                             + mu * B0 * G0(v)
                             + c1.value().evaluateBSplineNormalizedInput(u) * F1(v)
@@ -64,20 +58,20 @@ void Tubular::updateBaseMesh() {
     // for(const auto &v: vertices){
     //     std::cout<<v<<std::endl;
     // }
-    // for(int i = 0; i < u_resolution - 1; ++i) {
-    //     for(int j = 0; j < v_resolution - 1; ++j) {
-    //         tri.clear();
-    //         tri.push_back(handles[i * u_resolution + j]);
-    //         tri.push_back(handles[i * u_resolution + j + 1]);
-    //         tri.push_back(handles[(i + 1) * u_resolution + j]);
-    //         mesh.add_face(tri);
-    //         tri.clear();
-    //         tri.push_back(handles[(i + 1) * u_resolution + j]);
-    //         tri.push_back(handles[i * u_resolution + j + 1]);
-    //         tri.push_back(handles[(i + 1) * u_resolution + j + 1]);
-    //         mesh.add_face(tri);
-    //     }
-    // }
+    for(int i = 0; i < u_resolution - 1; ++i) {
+        for(int j = 0; j < v_resolution - 1; ++j) {
+            tri.clear();
+            tri.push_back(handles[i * u_resolution + j]);
+            tri.push_back(handles[i * u_resolution + j + 1]);
+            tri.push_back(handles[(i + 1) * u_resolution + j]);
+            mesh.add_face(tri);
+            tri.clear();
+            tri.push_back(handles[(i + 1) * u_resolution + j]);
+            tri.push_back(handles[i * u_resolution + j + 1]);
+            tri.push_back(handles[(i + 1) * u_resolution + j + 1]);
+            mesh.add_face(tri);
+        }
+    }
     Object::updateBaseMesh(true, true); //TODO: exact normal and curvature calculator
 }
 
