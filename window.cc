@@ -62,7 +62,8 @@ Window::Window(QApplication *parent) :
 void Window::open(bool clear_others) {
   auto filename =
     QFileDialog::getOpenFileName(this, tr("Open File"), last_directory,
-                                 tr("Bspline files (*.bspline);;"
+                                 tr("Tubular files (*.tub);;"
+                                    "Bspline files (*.bspline);;"//TODO: remove this
                                     "Readable files (*.obj *.ply *.stl *.bzr);;"
                                     "Mesh (*.obj *.ply *.stl);;"
                                     "Bézier surface (*.bzr);;"

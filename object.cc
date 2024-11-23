@@ -4,6 +4,8 @@
 #include "jet-wrapper.hh"
 #endif
 
+Object::Object() {}
+
 Object::Object(std::string filename) : filename(filename) {
 }
 

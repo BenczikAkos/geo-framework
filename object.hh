@@ -5,6 +5,7 @@
 
 class Object {
 public:
+  Object();
   explicit Object(std::string filename);
   virtual ~Object();
   const BaseMesh &baseMesh() const;

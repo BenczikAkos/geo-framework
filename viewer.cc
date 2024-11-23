@@ -2,6 +2,7 @@
 
 #include "bezier.hh"
 #include "bspline.hh"
+#include "tubular.hh"
 #include "mesh.hh"
 #include "viewer.hh"
 
@@ -66,8 +67,10 @@ bool Viewer::open(std::string filename) {
   std::shared_ptr<Object> surface;
   if (filename.ends_with(".bzr"))
     surface = std::make_shared<Bezier>(filename);
-  else if (filename.ends_with(".bspline"))
+  else if (filename.ends_with(".bspline")) //TODO: remove this before release
     surface = std::make_shared<BSpline>(filename);
+  else if (filename.ends_with(".tub"))
+    surface = std::make_shared<Tubular>(filename);
   else
     surface = std::make_shared<Mesh>(filename);
   if (!surface->valid())

@@ -55,6 +55,7 @@ add_executable(geo-framework WIN32
   textures.qrc
   bezier.cc
   bspline.cc
+  tubular.cc
   main.cc
   mesh.cc
   object.cc

@@ -6,6 +6,37 @@ BSpline::BSpline(std::string filename) : Object(filename) {
   reload();
 }
 
+BSpline::BSpline(size_t degree, size_t num_control_points, std::vector<double> &knotsInput, std::vector<Vector> &controlPointsInput) {
+  this->degree = degree;
+  this->num_control_points = num_control_points;
+  std::cout<<this->degree<<"   "<<this->num_control_points<<std::endl;
+  //making circular knot values
+  knots.clear();
+  knots.push_back(knotsInput[0]);
+  for(size_t i = 0; i < degree; ++i){
+    double circularKnot = knots[0] - (knotsInput[knotsInput.size() - 1 - i] - knotsInput[knotsInput.size() - 2 - i]);
+    knots.insert(knots.begin(), circularKnot);
+  }
+  for(size_t i = 1; i < knotsInput.size(); ++i) {
+    knots.push_back(knotsInput[i]);
+  }
+  for(size_t i = 0; i < degree; ++i){
+    double circularKnot = knots[knots.size()-1] + (knotsInput[i+1] - knotsInput[i]);
+    knots.push_back(circularKnot);
+  }
+  //circular control points
+  control_points.clear();
+  for(int i = degree-1; i >= 0; --i) {
+    control_points.push_back(controlPointsInput[controlPointsInput.size() - 1 - i]);
+  }
+  for(size_t i = 0; i < controlPointsInput.size(); ++i){
+    control_points.push_back(controlPointsInput[i]);
+  }
+  for(size_t i = 0; i <= degree; ++i){
+    control_points.push_back(controlPointsInput[i]);
+  }
+}
+
 BSpline::~BSpline() {}
 
 void BSpline::draw(const Visualization &vis) const {
@@ -162,4 +193,17 @@ bool BSpline::reload() {
   return true;
 }
 
+void BSpline::printKnots() const {
+  std::cout<<"Printing knots "<<std::endl;
+  for(const double& knot: knots){
+    std::cout << knot<<std::endl;
+  }
+}
 
+void BSpline::printControlPoints() const {
+  std::cout<<"Printing CPs"<<std::endl;
+  for(int i = 0; i < control_points.size(); ++i){
+    std::cout<< i << " " << control_points[i] <<std::endl;
+  }
+  std::cout<<std::endl;
+}
