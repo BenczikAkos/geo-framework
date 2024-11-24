@@ -26,11 +26,16 @@ Window::Window(QApplication *parent) :
   spinBox = new QSpinBox(this);
   spinBox->setRange(1, 10);
 
-  QVBoxLayout *layout = new QVBoxLayout();
+  auto *layout = new QVBoxLayout;
   layout->addWidget(spinBox);
-  layout->addWidget(viewer);
+
+  auto *spinBoxWidget = new QWidget;
+  spinBoxWidget->setLayout(layout);
   this->setLayout(layout);
 
+  auto *dock = new QDockWidget(tr("Mu"), this);
+  dock->setWidget(spinBoxWidget);
+  addDockWidget(Qt::RightDockWidgetArea, dock);
 
   auto openAction = new QAction(tr("&Open"), this);
   openAction->setShortcut(tr("Ctrl+O"));
