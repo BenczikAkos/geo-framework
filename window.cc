@@ -23,8 +23,9 @@ Window::Window(QApplication *parent) :
   connect(viewer, &Viewer::endComputation, this, &Window::endComputation);
   setCentralWidget(viewer);
 
-  spinBox = new QSpinBox(this);
+  spinBox = new QDoubleSpinBox(this);
   spinBox->setRange(1, 10);
+  connect(spinBox, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setMu);
 
   auto *layout = new QVBoxLayout;
   layout->addWidget(spinBox);

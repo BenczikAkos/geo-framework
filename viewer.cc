@@ -63,6 +63,14 @@ void Viewer::deleteObjects() {
   objects.clear();
 }
 
+void Viewer::setMu(double mu) {
+  for (auto o : objects) {
+    auto tubular = std::dynamic_pointer_cast<Tubular>(o);
+    if (tubular)
+      tubular->updateMu(mu);
+  }
+}
+
 bool Viewer::open(std::string filename) {
   std::shared_ptr<Object> surface;
   if (filename.ends_with(".bzr"))

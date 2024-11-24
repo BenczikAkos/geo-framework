@@ -28,6 +28,9 @@ signals:
   void midComputation(int percent);
   void endComputation();
 
+public slots:
+  void setMu(double mu);
+
 protected:
   virtual void init() override;
   virtual void draw() override;

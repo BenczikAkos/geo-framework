@@ -27,6 +27,6 @@ private:
   QApplication *parent;
   Viewer *viewer;
   QProgressBar *progress;
-  QSpinBox *spinBox;
+  QDoubleSpinBox *spinBox;
   QString last_directory;
 };
