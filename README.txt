@@ -1,0 +1,2 @@
+A B-spline-ok első és második deriváltját próbáltam a rekurzív formulával számolni, de időhiány miatt nem tudtam debuggolni. Emiatt persze a pontos normál/görbület számítás se jó :(
+A spline-ok mozgatható kontrollpontjai már közel van, a BSpline osztályokra önmagukban működtek, de a drawWithNames nem úgy működik mint hittem hogy fog.

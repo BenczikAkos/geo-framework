@@ -8,27 +8,10 @@ Tubular::Tubular(std::string filename) : Object(filename) {
 
 Tubular::~Tubular() {}
 
-void Tubular::draw(const Visualization &vis) const {
-    glDisable(GL_LIGHTING);
-    glColor3d(1.0, 1.0, 1.0);
-    glPointSize(3.0);
-    glBegin(GL_POINTS);
-    for (const auto &p : vertices) {
-        glVertex3dv(p.data());
-    }
-    glEnd();
-
-    glPointSize(1.0);
-    glEnable(GL_LIGHTING);
-    Object::draw(vis);
-}
-
 void Tubular::drawWithNames(const Visualization &vis) const {
     if (!vis.show_control_points)
         return;
-    c0.value().draw(vis);
     c0.value().drawWithNames(vis);
-    c1.value().draw(vis);
     c1.value().drawWithNames(vis);
 }
 
@@ -52,10 +35,9 @@ void Tubular::updateBaseMesh() {
             vertices.push_back(vertex);
             handles.push_back(mesh.add_vertex(vertex));
         }
-        //handles.push_back(handles[i*u_resolution]);
     }
-    for(int i = 0; i < u_resolution - 1; ++i) {
-        for(int j = 0; j < v_resolution - 1; ++j) {
+    for(int i = 0; i < u_resolution-1; ++i) {
+        for(int j = 0; j < v_resolution-1; ++j) {
             tri.clear();
             tri.push_back(handles[i * u_resolution + j]);
             tri.push_back(handles[i * u_resolution + j + 1]);
@@ -118,13 +100,13 @@ Vector Tubular::evaluate(double u, double v) const {
     return vertex;
 }
 
-Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
-    return Vector(0.0); // TODO
-}
+// Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
+//     return Vector(0.0); // TODO
+// }
 
-double Tubular::meanCurvature(BaseMesh::VertexHandle vh) const {
-    return 0.0; // TODO
-}
+// double Tubular::meanCurvature(BaseMesh::VertexHandle vh) const {
+//     return 0.0; // TODO
+// }
 
 #pragma region HelperFuncs
 double Tubular::F0(double v) const {
