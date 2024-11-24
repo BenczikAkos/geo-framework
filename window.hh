@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QSpinBox>
 
 #include "viewer.hh"
 
@@ -26,5 +27,6 @@ private:
   QApplication *parent;
   Viewer *viewer;
   QProgressBar *progress;
+  QSpinBox *spinBox;
   QString last_directory;
 };

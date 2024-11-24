@@ -23,8 +23,9 @@ void Object::draw(const Visualization &vis) const {
   glPolygonOffset(1, 1);
 
   if (vis.show_solid || vis.show_wireframe) {
-    if (vis.type == VisType::PLAIN)
+    if (vis.type == VisType::PLAIN){
       glColor3d(1.0, 1.0, 1.0);
+    }
     else if (vis.type == VisType::ISOPHOTES) {
       glBindTexture(GL_TEXTURE_2D, vis.current_isophote_texture);
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);

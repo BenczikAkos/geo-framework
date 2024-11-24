@@ -9,24 +9,27 @@ Tubular::Tubular(std::string filename) : Object(filename) {
 Tubular::~Tubular() {}
 
 void Tubular::draw(const Visualization &vis) const {
-    Object::draw(vis);
     glDisable(GL_LIGHTING);
-    glColor3d(1.0, 0.0, 1.0);
+    glColor3d(1.0, 1.0, 1.0);
     glPointSize(3.0);
     glBegin(GL_POINTS);
-    for (const auto &p : vertices)
-      glVertex3dv(p.data());
+    for (const auto &p : vertices) {
+        glVertex3dv(p.data());
+    }
     glEnd();
 
     glPointSize(1.0);
     glEnable(GL_LIGHTING);
+    Object::draw(vis);
 }
 
 void Tubular::drawWithNames(const Visualization &vis) const {
-    // if (!vis.show_control_points)
-    //     return;
-    // c0.value().drawWithNames(vis);
-    // c1.value().drawWithNames(vis);
+    if (!vis.show_control_points)
+        return;
+    c0.value().draw(vis);
+    c0.value().drawWithNames(vis);
+    c1.value().draw(vis);
+    c1.value().drawWithNames(vis);
 }
 
 Vector Tubular::postSelection(int selected) {
@@ -45,19 +48,12 @@ void Tubular::updateBaseMesh() {
         double v = i / (double)v_resolution;
         for(int j = 0; j < u_resolution; ++j) {
             double u = j / (double)u_resolution;
-            Vector B0 = c0.value().dEvaluateBSplineNormalizedInput(u)%c0.value().ddEvaluateBSplineNormalizedInput(u);
-            Vector B1 = c1.value().dEvaluateBSplineNormalizedInput(u)%c1.value().ddEvaluateBSplineNormalizedInput(u);
-            Vector vertex = c0.value().evaluateBSplineNormalizedInput(u) * F0(v)
-                            + mu * B0 * G0(v)
-                            + c1.value().evaluateBSplineNormalizedInput(u) * F1(v)
-                            + mu * B1 * G1(v);
+            auto vertex = evaluate(u, v);
             vertices.push_back(vertex);
             handles.push_back(mesh.add_vertex(vertex));
         }
+        //handles.push_back(handles[i*u_resolution]);
     }
-    // for(const auto &v: vertices){
-    //     std::cout<<v<<std::endl;
-    // }
     for(int i = 0; i < u_resolution - 1; ++i) {
         for(int j = 0; j < v_resolution - 1; ++j) {
             tri.clear();
@@ -72,7 +68,7 @@ void Tubular::updateBaseMesh() {
             mesh.add_face(tri);
         }
     }
-    Object::updateBaseMesh(true, true); //TODO: exact normal and curvature calculator
+    Object::updateBaseMesh(false, false); //TODO: exact normal and curvature calculator
 }
 
 bool Tubular::reload() {
@@ -90,6 +86,12 @@ bool Tubular::reload() {
     return true;
 }
 
+void Tubular::updateMu(double newMu) {
+    mu = newMu;
+    updateBaseMesh();
+}
+
+
 void Tubular::readBSpline(std::ifstream &input, std::optional<BSpline> &result) {
     int degree, num_of_control_points;
     input >> degree >> num_of_control_points;
@@ -104,6 +106,16 @@ void Tubular::readBSpline(std::ifstream &input, std::optional<BSpline> &result) 
         input>> control_points[i][0] >> control_points[i][1] >> control_points[i][2];
     }
     result.emplace(degree, num_of_control_points, knots, control_points);
+}
+
+Vector Tubular::evaluate(double u, double v) const {
+    Vector B0 = c0.value().dEvaluateBSplineNormalizedInput(u)%c0.value().ddEvaluateBSplineNormalizedInput(u);
+    Vector B1 = c1.value().dEvaluateBSplineNormalizedInput(u)%c1.value().ddEvaluateBSplineNormalizedInput(u);
+    Vector vertex = c0.value().evaluateBSplineNormalizedInput(u) * F0(v)
+                    + mu * B0 * G0(v)
+                    + c1.value().evaluateBSplineNormalizedInput(u) * F1(v)
+                    + mu * B1 * G1(v);
+    return vertex;
 }
 
 Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
@@ -129,5 +141,15 @@ double Tubular::G0(double v) const {
 
 double Tubular::G1(double v) const {
     return v * v * v - v * v;
+}
+
+Vector Tubular::ru(double u, double v) const {
+    double h = 0.001;
+    return evaluate(u-h, v) - evaluate(u+h, v);
+}
+
+Vector Tubular::rv(double u, double v) const {
+    double h = 0.001;
+    return evaluate(u, v-h) - evaluate(u, v+h);
 }
 #pragma endregion

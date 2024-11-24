@@ -1,6 +1,8 @@
 #include <memory>
 
 #include <QtWidgets>
+#include <QVBoxLayout>
+
 
 #include "window.hh"
 
@@ -20,6 +22,15 @@ Window::Window(QApplication *parent) :
   connect(viewer, &Viewer::midComputation, this, &Window::midComputation);
   connect(viewer, &Viewer::endComputation, this, &Window::endComputation);
   setCentralWidget(viewer);
+
+  spinBox = new QSpinBox(this);
+  spinBox->setRange(1, 10);
+
+  QVBoxLayout *layout = new QVBoxLayout();
+  layout->addWidget(spinBox);
+  layout->addWidget(viewer);
+  this->setLayout(layout);
+
 
   auto openAction = new QAction(tr("&Open"), this);
   openAction->setShortcut(tr("Ctrl+O"));
