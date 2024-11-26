@@ -34,11 +34,21 @@ void Tubular::drawWithNames(const Visualization &vis) const {
 }
 
 Vector Tubular::postSelection(int selected) {
-    return Vector(0.0); // TODO
+    if(selected < c0.cp.size())
+        return c0.cp[selected];
+    selected -= c0.cp.size();
+    return c1.cp[selected];
 }
 
 void Tubular::movement(int selected, const Vector &pos) {
-    // TODO
+    if(selected < c0.cp.size()){
+        c0.cp[selected] = pos;
+    }
+    else {
+        selected -= c0.cp.size();
+        c1.cp[selected] = pos;
+    }
+    updateBaseMesh();
 }
 
 void Tubular::updateBaseMesh() {
