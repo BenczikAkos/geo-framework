@@ -64,18 +64,19 @@ void Tubular::updateBaseMesh() {
             vertices.push_back(vertex);
             handles.push_back(mesh.add_vertex(vertex));
         }
+        handles.push_back(handles[i * u_resolution + i]); // Close the loop
     }
-    for(int i = 0; i < u_resolution-1; ++i) {
-        for(int j = 0; j < v_resolution-1; ++j) {
+    for(int i = 0; i < v_resolution-1; ++i){
+        for(int j = 0; j < u_resolution; ++j){
             tri.clear();
-            tri.push_back(handles[i * u_resolution + j]);
-            tri.push_back(handles[i * u_resolution + j + 1]);
-            tri.push_back(handles[(i + 1) * u_resolution + j]);
+            tri.push_back(handles[i * (u_resolution + 1) + j]);
+            tri.push_back(handles[i * (u_resolution + 1) + j + 1]);
+            tri.push_back(handles[(i + 1) * (u_resolution + 1) + j]);
             mesh.add_face(tri);
             tri.clear();
-            tri.push_back(handles[(i + 1) * u_resolution + j]);
-            tri.push_back(handles[i * u_resolution + j + 1]);
-            tri.push_back(handles[(i + 1) * u_resolution + j + 1]);
+            tri.push_back(handles[(i + 1) * (u_resolution + 1) + j]);
+            tri.push_back(handles[i * (u_resolution + 1) + j + 1]);
+            tri.push_back(handles[(i + 1) * (u_resolution + 1) + j + 1]);
             mesh.add_face(tri);
         }
     }
