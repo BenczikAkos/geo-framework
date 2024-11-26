@@ -95,3 +95,26 @@ Point BSpline::derivatives(double u, size_t d, VectorVector &der) const
     der.emplace_back(0.0, 0.0, 0.0);
   return der[0];
 }
+
+void BSpline::draw() const {
+  glDisable(GL_LIGHTING);
+  glLineWidth(3.0);
+  glColor3d(0.3, 0.3, 1.0);
+  // Draw control polygon
+  glBegin(GL_LINE_STRIP);
+  for(int i = 0; i < cp.size(); ++i){
+    glVertex3dv(cp[i].data());
+  }
+  glVertex3dv(cp.front().data()); // Close the polygon
+  glEnd();
+  glLineWidth(1.0);
+  glPointSize(8.0);
+  glColor3d(1.0, 0.0, 1.0);
+  // Draw control points
+  glBegin(GL_POINTS);
+  for (const auto &p : cp)
+    glVertex3dv(p.data());
+  glEnd();
+  glPointSize(1.0);
+  glEnable(GL_LIGHTING);
+}

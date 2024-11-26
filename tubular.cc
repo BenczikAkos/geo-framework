@@ -8,11 +8,29 @@ Tubular::Tubular(std::string filename) : Object(filename) {
 
 Tubular::~Tubular() {}
 
+void Tubular::draw(const Visualization &vis) const {
+    if (vis.show_control_points) {
+        c0.draw();
+        c1.draw();
+    }
+    Object::draw(vis);
+}
+
 void Tubular::drawWithNames(const Visualization &vis) const {
     if (!vis.show_control_points)
         return;
-    //c0.drawWithNames(vis);
-    //c1.drawWithNames(vis);
+    for (size_t i = 0; i < c0.cp.size(); ++i) {
+        const auto &p = c0.cp[i];
+        glPushName(i);
+        glRasterPos3dv(p.data());
+        glPopName();
+    }
+    for (size_t i = 0; i < c1.cp.size(); ++i) {
+        const auto &p = c1.cp[i];
+        glPushName(i + c0.cp.size());
+        glRasterPos3dv(p.data());
+        glPopName();
+    }
 }
 
 Vector Tubular::postSelection(int selected) {
@@ -95,7 +113,7 @@ void Tubular::readBSpline(std::ifstream &input, BSpline &result) {
 Point Tubular::evaluate(double u, double v, VectorVector &c0_der, VectorVector &c1_der) const {
     c0_der.resize(3);
     c1_der.resize(3);
-    u = c0.knots[0] + u * (c0.knots[c0.knots.size()-1] - c0.knots[0]);
+    u = std::lerp(c0.knots.front(), c0.knots.back(), u);
     Point C0_u = c0.derivatives(u, 2, c0_der);
     Point C1_u = c1.derivatives(u, 2, c1_der);
     Point B0 = c0_der[1]%c0_der[2];

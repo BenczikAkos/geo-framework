@@ -21,4 +21,5 @@ struct BSpline
   size_t findSpan(double u) const;
   void basisFunctionDerivatives(size_t i, double u, size_t d, DoubleMatrix &der) const;
   Point derivatives(double u, size_t d, VectorVector &der) const;
+  void draw() const;
 };
