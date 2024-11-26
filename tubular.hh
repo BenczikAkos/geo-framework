@@ -19,7 +19,7 @@ protected:
   //virtual Vector normal(BaseMesh::VertexHandle vh) const override;
   //virtual double meanCurvature(BaseMesh::VertexHandle vh) const override;
 private:
-    void readBSpline(std::ifstream &input, std::optional<BSpline> &result);
+    void readBSpline(std::ifstream &input, BSpline &result);
     std::vector<Vector> vertices;
     Vector evaluate(double u, double v) const;
     double F0(double v) const;
@@ -28,8 +28,8 @@ private:
     double G1(double v) const;
     Vector ru(double u, double v) const;
     Vector rv(double u, double v) const;
-    std::optional<BSpline> c0;
-    std::optional<BSpline> c1;
+    BSpline c0;
+    BSpline c1;
     double mu = 1.0;
     int u_resolution = 100;
     int v_resolution = 100;

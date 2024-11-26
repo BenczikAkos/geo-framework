@@ -11,8 +11,8 @@ Tubular::~Tubular() {}
 void Tubular::drawWithNames(const Visualization &vis) const {
     if (!vis.show_control_points)
         return;
-    c0.value().drawWithNames(vis);
-    c1.value().drawWithNames(vis);
+    //c0.drawWithNames(vis);
+    //c1.drawWithNames(vis);
 }
 
 Vector Tubular::postSelection(int selected) {
@@ -74,29 +74,25 @@ void Tubular::updateMu(double newMu) {
 }
 
 
-void Tubular::readBSpline(std::ifstream &input, std::optional<BSpline> &result) {
+void Tubular::readBSpline(std::ifstream &input, BSpline &result) {
     int degree, num_of_control_points;
     input >> degree >> num_of_control_points;
-    std::vector<double> knots;
+    result.p = degree;
+    result.n = num_of_control_points - 1;
     for(int i = 0; i < num_of_control_points+1; ++i) {
         double knotValue = 0.0;
         input >> knotValue;
-        knots.push_back(knotValue);
+        result.knots.push_back(knotValue);
     }
-    std::vector<Vector> control_points(num_of_control_points);
+    Vector cp;
     for(int i = 0; i < num_of_control_points; ++i) {
-        input>> control_points[i][0] >> control_points[i][1] >> control_points[i][2];
+        input>> cp[0] >> cp[1] >> cp[2];
+        result.cp.push_back(cp);
     }
-    result.emplace(degree, num_of_control_points, knots, control_points);
 }
 
 Vector Tubular::evaluate(double u, double v) const {
-    Vector B0 = c0.value().dEvaluateBSplineNormalizedInput(u)%c0.value().ddEvaluateBSplineNormalizedInput(u);
-    Vector B1 = c1.value().dEvaluateBSplineNormalizedInput(u)%c1.value().ddEvaluateBSplineNormalizedInput(u);
-    Vector vertex = c0.value().evaluateBSplineNormalizedInput(u) * F0(v)
-                    + mu * B0 * G0(v)
-                    + c1.value().evaluateBSplineNormalizedInput(u) * F1(v)
-                    + mu * B1 * G1(v);
+    Vector vertex(0.0);
     return vertex;
 }
 
