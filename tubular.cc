@@ -53,6 +53,7 @@ void Tubular::movement(int selected, const Vector &pos) {
 
 void Tubular::updateBaseMesh() {
     mesh.clear();
+    mesh.request_vertex_normals();
     std::vector<BaseMesh::VertexHandle> handles, tri;
 
     for(int i = 0; i < v_resolution; ++i) {
@@ -62,7 +63,9 @@ void Tubular::updateBaseMesh() {
             VectorVector c0_der, c1_der;
             auto vertex = evaluate(u, v, c0_der, c1_der);
             vertices.push_back(vertex);
-            handles.push_back(mesh.add_vertex(vertex));
+            auto v_handle = mesh.add_vertex(vertex);
+            mesh.set_normal(v_handle, ru(u, v)%rv(u, v));
+            handles.push_back(v_handle);
         }
         handles.push_back(handles[i * u_resolution + i]); // Close the loop
     }
@@ -146,25 +149,51 @@ double Tubular::F0(double v) const {
     return 2.0 * v * v * v - 3.0 * v * v + 1.0;
 }
 
+double Tubular::dF0(double v) const {
+    return 6.0 * v * v - 6.0 * v;
+}
+
 double Tubular::F1(double v) const {
     return -2.0 * v * v * v + 3.0 * v * v;
+}
+
+double Tubular::dF1(double v) const {
+    return -6.0 * v * v + 6.0 * v;
 }
 
 double Tubular::G0(double v) const {
     return v * v * v - 2.0 * v * v + v;
 }
 
+double Tubular::dG0(double v) const {
+    return 3.0 * v * v - 4.0 * v + 1.0;
+}
+
 double Tubular::G1(double v) const {
     return v * v * v - v * v;
 }
 
+double Tubular::dG1(double v) const {
+    return 3.0 * v * v - 2.0 * v;
+}
+#pragma endregion
+
 Vector Tubular::ru(double u, double v) const {
-    double h = 0.001;
-    return Vector(0.0); // TODO
+    VectorVector c0_der, c1_der;
+    c0_der.resize(4); c0.derivatives(u, 3, c0_der);
+    c1_der.resize(4); c1.derivatives(u, 3, c1_der);
+    auto dB0 = c0_der[1]%c0_der[3];
+    auto dB1 = c1_der[1]%c1_der[3];
+    return c0_der[1] * F0(v) + mu * dB0 * G0(v) + c1_der[1] * F1(v) + mu * dB1 * G1(v);
 }
 
 Vector Tubular::rv(double u, double v) const {
-    double h = 0.001;
-    return Vector(0.0); // TODO
+    VectorVector c0_der, c1_der;
+    c0_der.resize(3); 
+    Point C0_u = c0.derivatives(u, 2, c0_der);
+    c1_der.resize(3);
+    Point C1_u =  c1.derivatives(u, 2, c1_der);
+    auto B0 = c0_der[1]%c0_der[2];
+    auto B1 = c1_der[1]%c1_der[2];
+    return C0_u * dF0(v) + mu * B0 * dG0(v) + C1_u * dF1(v) + mu * B1 * dG1(v);
 }
-#pragma endregion

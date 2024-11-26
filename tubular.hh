@@ -22,9 +22,13 @@ private:
     std::vector<Point> vertices;
     Point evaluate(double u, double v, VectorVector &c0_der, VectorVector &c1_der) const;
     double F0(double v) const;
+    double dF0(double v) const;
     double F1(double v) const;
+    double dF1(double v) const;
     double G0(double v) const;
+    double dG0(double v) const;
     double G1(double v) const;
+    double dG1(double v) const;
     Vector ru(double u, double v) const;
     Vector rv(double u, double v) const;
     BSpline c0;
