@@ -31,7 +31,8 @@ void Tubular::updateBaseMesh() {
         double v = i / (double)v_resolution;
         for(int j = 0; j < u_resolution; ++j) {
             double u = j / (double)u_resolution;
-            auto vertex = evaluate(u, v);
+            VectorVector c0_der, c1_der;
+            auto vertex = evaluate(u, v, c0_der, c1_der);
             vertices.push_back(vertex);
             handles.push_back(mesh.add_vertex(vertex));
         }
@@ -91,8 +92,15 @@ void Tubular::readBSpline(std::ifstream &input, BSpline &result) {
     }
 }
 
-Vector Tubular::evaluate(double u, double v) const {
-    Vector vertex(0.0);
+Point Tubular::evaluate(double u, double v, VectorVector &c0_der, VectorVector &c1_der) const {
+    c0_der.resize(3);
+    c1_der.resize(3);
+    u = c0.knots[0] + u * (c0.knots[c0.knots.size()-1] - c0.knots[0]);
+    Point C0_u = c0.derivatives(u, 2, c0_der);
+    Point C1_u = c1.derivatives(u, 2, c1_der);
+    Point B0 = c0_der[1]%c0_der[2];
+    Point B1 = c1_der[1]%c1_der[2];
+    Point vertex = C0_u * F0(v) + mu * B0 * G0(v) + C1_u * F1(v) + mu * B1 * G1(v);
     return vertex;
 }
 
@@ -123,11 +131,11 @@ double Tubular::G1(double v) const {
 
 Vector Tubular::ru(double u, double v) const {
     double h = 0.001;
-    return evaluate(u-h, v) - evaluate(u+h, v);
+    return Vector(0.0); // TODO
 }
 
 Vector Tubular::rv(double u, double v) const {
     double h = 0.001;
-    return evaluate(u, v-h) - evaluate(u, v+h);
+    return Vector(0.0); // TODO
 }
 #pragma endregion

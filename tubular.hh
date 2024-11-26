@@ -1,7 +1,5 @@
 #pragma once
 
-#include <optional>
-#include "object.hh"
 #include "bspline.hh"
 
 class Tubular : public Object {
@@ -20,8 +18,8 @@ protected:
   //virtual double meanCurvature(BaseMesh::VertexHandle vh) const override;
 private:
     void readBSpline(std::ifstream &input, BSpline &result);
-    std::vector<Vector> vertices;
-    Vector evaluate(double u, double v) const;
+    std::vector<Point> vertices;
+    Point evaluate(double u, double v, VectorVector &c0_der, VectorVector &c1_der) const;
     double F0(double v) const;
     double F1(double v) const;
     double G0(double v) const;
