@@ -42,18 +42,31 @@ Vector Dupin::postSelection(int selected) {
 }
 
 void Dupin::movement(int selected, const Vector &pos) {
-  controlPoints[selected] = pos;
+  controlPoints[selected] = Vector(pos[0], controlPoints[selected][1], controlPoints[selected][2]);
+  updateParameters();
+}
+
+void Dupin::updateParameters() {
+    a = 0.25 * (controlPoints[0][0] + controlPoints[1][0] - controlPoints[2][0] - controlPoints[3][0]);
+    d = 0.25 * (controlPoints[0][0] - controlPoints[1][0] + controlPoints[2][0] - controlPoints[3][0]);
+    c = -0.25 * (controlPoints[0][0] - controlPoints[1][0] - controlPoints[2][0] + controlPoints[3][0]);
+    b = std::sqrt(a*a - c*c);
+    updateBaseMesh();
 }
 
 void Dupin::updateBaseMesh() {
     mesh.clear();
     std::vector<BaseMesh::VertexHandle> handles, tri;
+    Vector translation = Vector(0.0f, 0.0f, 0.0f);
+    if(controlPoints.size() == 4) {
+        translation = 0.25 * (controlPoints[0] + controlPoints[1] + controlPoints[2] + controlPoints[3]);
+    }
     for (size_t i = 0; i < resolution.first; ++i) {
         float u = range.first + (range.second - range.first) * i / resolution.first;
         for (size_t j = 0; j < resolution.second; ++j) {
             float v = range.first + (range.second - range.first) * j / resolution.second;
             Vector p(calculateX(u, v), calculateY(u, v), calculateZ(u, v));
-            handles.push_back(mesh.add_vertex(p));
+            handles.push_back(mesh.add_vertex(p+translation));
         }
         // Adding the starter point to the end
         handles.push_back(handles[i * (resolution.second + 1)]);
@@ -91,8 +104,8 @@ bool Dupin::reload() {
         return false;
     }
     updateBaseMesh();
-    std::vector<float> x;
 
+    std::vector<float> x;
     x.push_back(a-c+d);
     x.push_back(a+c-d);
     x.push_back(-a+c+d);
