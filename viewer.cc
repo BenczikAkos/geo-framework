@@ -411,34 +411,27 @@ void Viewer::setupCamera() {
   update();
 }
 
-void Viewer::setDupinA(float value) {
+void Viewer::setDupinA(double value) {
   if (objects.empty())
     return;
   auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin)
+  if (dupin){
     dupin->setA(value);
+  }
   update();
 }
 
-void Viewer::setDupinB(float value) {
+void Viewer::setDupinB(double value) {
   if (objects.empty())
     return;
   auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin)
+  if (dupin){
     dupin->setB(value);
+  }
   update();
 }
 
-void Viewer::setDupinC(float value) {
-  if (objects.empty())
-    return;
-  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin)
-    dupin->setC(value);
-  update();
-}
-
-void Viewer::setDupinD(float value) {
+void Viewer::setDupinD(double value) {
   if (objects.empty())
     return;
   auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());

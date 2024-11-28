@@ -19,18 +19,13 @@ private slots:
   void setCutoff();
   void setRange();
   void setSlicing();
-  void setupUI();
-  void setDupinA(int value);
-  void setDupinB(int value);
-  void setDupinC(int value);
-  void setDupinD(int value);
+  void setupParameterEditor();
 
 private:
   QApplication *parent;
   Viewer *viewer;
-  QSpinBox *spinBoxA;
-  QSpinBox *spinBoxB;
-  QSpinBox *spinBoxC;
-  QSpinBox *spinBoxD;
+  QDoubleSpinBox *spinBoxA;
+  QDoubleSpinBox *spinBoxB;
+  QDoubleSpinBox *spinBoxD;
   QString last_directory;
 };

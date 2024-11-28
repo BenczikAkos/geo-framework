@@ -10,22 +10,39 @@ Dupin::Dupin(std::string filename) : Object(filename) {
 Dupin::~Dupin() {
 }
 
+void Dupin::draw(const Visualization &vis) const {
+    Object::draw(vis);
+    if(vis.show_control_points){
+        glDisable(GL_LIGHTING);
+        glColor3d(0.3, 0.3, 1.0);
+        glPointSize(18.0);
+        glBegin(GL_POINTS);
+        for(const auto &p : controlPoints){
+          glVertex3dv(p.data());
+        }
+        glEnd();
+        glPointSize(1.0);
+        glEnable(GL_LIGHTING);
+    }
+}
+
 void Dupin::drawWithNames(const Visualization &vis) const {
-  if (!vis.show_wireframe)
+  if (!vis.show_control_points)
     return;
-  for (auto v : mesh.vertices()) {
-    glPushName(v.idx());
-    glRasterPos3dv(mesh.point(v).data());
+  int name = 0;
+  for (auto v : controlPoints) {
+    glPushName(name++);
+    glRasterPos3dv(v.data());
     glPopName();
   }
 }
 
 Vector Dupin::postSelection(int selected) {
-  return mesh.point(BaseMesh::VertexHandle(selected));
+  return controlPoints[selected];
 }
 
 void Dupin::movement(int selected, const Vector &pos) {
-  mesh.set_point(BaseMesh::VertexHandle(selected), pos);
+  controlPoints[selected] = pos;
 }
 
 void Dupin::updateBaseMesh() {
@@ -74,21 +91,27 @@ bool Dupin::reload() {
         return false;
     }
     updateBaseMesh();
+    std::vector<float> x;
+
+    x.push_back(a-c+d);
+    x.push_back(a+c-d);
+    x.push_back(-a+c+d);
+    x.push_back(-a-c-d);
+    for(auto i : x){
+        controlPoints.push_back(Vector(i, 0.0f, 0.0f));
+    }
     return true;
 }
 
 void Dupin::setA(float value) {
     a = value;
+    c = std::sqrt(a*a - b*b);
     updateBaseMesh();
 }
 
 void Dupin::setB(float value) {
     b = value;
-    updateBaseMesh();
-}
-
-void Dupin::setC(float value) {
-    c = value;
+    c = std::sqrt(a*a - b*b);
     updateBaseMesh();
 }
 

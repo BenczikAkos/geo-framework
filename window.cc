@@ -13,7 +13,7 @@ Window::Window(QApplication *parent) :
   viewer = new Viewer(this);
   setCentralWidget(viewer);
 
-  setupUI();
+  setupParameterEditor();
 
   auto openAction = new QAction(tr("&Open"), this);
   openAction->setShortcut(tr("Ctrl+O"));
@@ -52,7 +52,7 @@ Window::Window(QApplication *parent) :
   visMenu->addAction(rangeAction);
   visMenu->addAction(slicingAction);
 
-  viewer->open("../../../params.txt");
+  viewer->open("../../../Dupin/params.txt");
 }
 
 void Window::open(bool clear_others) {
@@ -195,29 +195,24 @@ void Window::setSlicing() {
   }
 }
 
-void Window::setupUI() {
-  spinBoxA = new QSpinBox;
-  spinBoxB = new QSpinBox;
-  spinBoxC = new QSpinBox;
-  spinBoxD = new QSpinBox;
+void Window::setupParameterEditor() {
+  spinBoxA = new QDoubleSpinBox;
+  spinBoxB = new QDoubleSpinBox;
+  spinBoxD = new QDoubleSpinBox;
   int min = 0; int max = 10;
 
   spinBoxA->setRange(min, max);
-  connect(spinBoxA, &QSpinBox::valueChanged, this, &Window::setDupinA);
+  connect(spinBoxA, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinA);
   spinBoxB->setRange(min, max);
-  connect(spinBoxB, &QSpinBox::valueChanged, this, &Window::setDupinB);
-  spinBoxC->setRange(min, max);
-  connect(spinBoxC, &QSpinBox::valueChanged, this, &Window::setDupinC);
+  connect(spinBoxB, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinB);
   spinBoxD->setRange(min, max);
-  connect(spinBoxD, &QSpinBox::valueChanged, this, &Window::setDupinD);
+  connect(spinBoxD, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinD);
 
   auto *spinBoxLayout = new QVBoxLayout;
   spinBoxLayout->addWidget(new QLabel(tr("A")));
   spinBoxLayout->addWidget(spinBoxA);
   spinBoxLayout->addWidget(new QLabel(tr("B")));
   spinBoxLayout->addWidget(spinBoxB);
-  spinBoxLayout->addWidget(new QLabel(tr("C")));
-  spinBoxLayout->addWidget(spinBoxC);
   spinBoxLayout->addWidget(new QLabel(tr("D")));
   spinBoxLayout->addWidget(spinBoxD);
 
@@ -228,24 +223,4 @@ void Window::setupUI() {
   dock->setWidget(spinBoxWidget);
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
-}
-
-void Window::setDupinA(int value) {
-  viewer->setDupinA(value / 10.0);
-  viewer->update();
-}
-
-void Window::setDupinB(int value) {
-  viewer->setDupinB(value / 10.0);
-  viewer->update();
-}
-
-void Window::setDupinC(int value) {
-  viewer->setDupinC(value / 10.0);
-  viewer->update();
-}
-
-void Window::setDupinD(int value) {
-  viewer->setDupinD(value / 10.0);
-  viewer->update();
 }
