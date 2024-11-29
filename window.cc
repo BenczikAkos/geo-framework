@@ -5,7 +5,7 @@
 #include "window.hh"
 
 Window::Window(QApplication *parent) :
-  QMainWindow(), parent(parent), last_directory("../../../")
+  QMainWindow(), parent(parent), last_directory("./")
 {
   setWindowTitle(tr("Geometry Framework"));
   setStatusBar(new QStatusBar);
