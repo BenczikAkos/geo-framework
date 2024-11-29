@@ -1,0 +1,418 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 48b3050..467fc37 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -56,6 +56,7 @@ add_executable(geo-framework WIN32
+   bezier.cc
+   main.cc
+   mesh.cc
++  dupin.cc
+   object.cc
+   viewer.cc
+   visualization.cc
+diff --git a/dupin.cc b/dupin.cc
+new file mode 100644
+index 0000000..b4de8f7
+--- /dev/null
++++ b/dupin.cc
+@@ -0,0 +1,152 @@
++#include <fstream>
++
++#include "dupin.hh"
++#include <cmath>
++
++Dupin::Dupin(std::string filename) : Object(filename) {
++  reload();
++}
++
++Dupin::~Dupin() {
++}
++
++void Dupin::draw(const Visualization &vis) const {
++    Object::draw(vis);
++    if(vis.show_control_points){
++        glDisable(GL_LIGHTING);
++        glColor3d(0.3, 0.3, 1.0);
++        glPointSize(18.0);
++        glBegin(GL_POINTS);
++        for(const auto &p : controlPoints){
++          glVertex3dv(p.data());
++        }
++        glEnd();
++        glPointSize(1.0);
++        glEnable(GL_LIGHTING);
++    }
++}
++
++void Dupin::drawWithNames(const Visualization &vis) const {
++  if (!vis.show_control_points)
++    return;
++  int name = 0;
++  for (auto v : controlPoints) {
++    glPushName(name++);
++    glRasterPos3dv(v.data());
++    glPopName();
++  }
++}
++
++Vector Dupin::postSelection(int selected) {
++  return controlPoints[selected];
++}
++
++void Dupin::movement(int selected, const Vector &pos) {
++  controlPoints[selected] = Vector(pos[0], controlPoints[selected][1], controlPoints[selected][2]);
++  updateParameters();
++}
++
++void Dupin::updateParameters() {
++    a = 0.25 * (controlPoints[0][0] + controlPoints[1][0] - controlPoints[2][0] - controlPoints[3][0]);
++    d = 0.25 * (controlPoints[0][0] - controlPoints[1][0] + controlPoints[2][0] - controlPoints[3][0]);
++    c = -0.25 * (controlPoints[0][0] - controlPoints[1][0] - controlPoints[2][0] + controlPoints[3][0]);
++    b = std::sqrt(a*a - c*c);
++    updateBaseMesh();
++}
++
++void Dupin::updateBaseMesh() {
++    mesh.clear();
++    std::vector<BaseMesh::VertexHandle> handles, tri;
++    Vector translation = Vector(0.0f, 0.0f, 0.0f);
++    if(controlPoints.size() == 4) {
++        translation = 0.25 * (controlPoints[0] + controlPoints[1] + controlPoints[2] + controlPoints[3]);
++    }
++    for (size_t i = 0; i < resolution.first; ++i) {
++        float u = range.first + (range.second - range.first) * i / resolution.first;
++        for (size_t j = 0; j < resolution.second; ++j) {
++            float v = range.first + (range.second - range.first) * j / resolution.second;
++            Vector p(calculateX(u, v), calculateY(u, v), calculateZ(u, v));
++            handles.push_back(mesh.add_vertex(p+translation));
++        }
++        // Adding the starter point to the end
++        handles.push_back(handles[i * (resolution.second + 1)]);
++    }
++    //Adding the starter circle to the end
++    for(size_t i = 0; i < resolution.second + 1; ++i) {
++        handles.push_back(handles[i]);
++    }
++    for (size_t i = 0; i < resolution.first; ++i) {
++        for (size_t j = 0; j < resolution.second; ++j) {
++            tri.clear();
++            tri.push_back(handles[i * (resolution.second + 1) + j]);
++            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
++            tri.push_back(handles[i * (resolution.second + 1) + j + 1]);
++            mesh.add_face(tri);
++            tri.clear();
++            tri.push_back(handles[i * (resolution.second + 1) + j]);
++            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j]);
++            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
++            mesh.add_face(tri);
++        }
++    }
++    Object::updateBaseMesh(false, false);
++}
++
++bool Dupin::reload() {
++    float read_a, read_b, read_c, read_d = 0.0f;
++    try {
++        std::ifstream f(filename);
++        f.exceptions(std::ios::failbit | std::ios::badbit);
++        f >> read_a >> read_b >> read_c >> read_d;
++        a = read_a; b = read_b; c = read_c; d = read_d;
++
++    } catch (std::ios_base::failure &e) {
++        return false;
++    }
++    updateBaseMesh();
++
++    std::vector<float> x;
++    x.push_back(a-c+d);
++    x.push_back(a+c-d);
++    x.push_back(-a+c+d);
++    x.push_back(-a-c-d);
++    for(auto i : x){
++        controlPoints.push_back(Vector(i, 0.0f, 0.0f));
++    }
++    return true;
++}
++
++void Dupin::setA(float value) {
++    a = value;
++    c = std::sqrt(a*a - b*b);
++    updateBaseMesh();
++}
++
++void Dupin::setB(float value) {
++    b = value;
++    c = std::sqrt(a*a - b*b);
++    updateBaseMesh();
++}
++
++void Dupin::setD(float value) {
++    d = value;
++    updateBaseMesh();
++}
++
++float Dupin::calculateX(float u, float v) const {
++    float numerator = d * (c - a * std::cos(u) * std::cos(v)) +  b * b * std::cos(u);
++    float denominator = a - c * std::cos(u) * std::cos(v);
++    return numerator / denominator;
++}
++
++float Dupin::calculateY(float u, float v) const {
++    float numerator = b * std::sin(u) * (a - d * std::cos(v));
++    float denominator = a - c * std::cos(u) * std::cos(v);
++    return numerator / denominator;
++}
++
++float Dupin::calculateZ(float u, float v) const {
++    float numerator = b * std::sin(v) * (c * std::cos(u) - d);
++    float denominator = a - c * std::cos(u) * std::cos(v);
++    return numerator / denominator;
++}
+diff --git a/dupin.hh b/dupin.hh
+new file mode 100644
+index 0000000..8b6e9c3
+--- /dev/null
++++ b/dupin.hh
+@@ -0,0 +1,28 @@
++#pragma once
++
++#include "object.hh"
++#include <numbers>
++
++class Dupin : public Object {
++public:
++  Dupin(std::string filename);
++  virtual ~Dupin();
++  virtual void draw(const Visualization &vis) const override;
++  virtual void drawWithNames(const Visualization &vis) const override;
++  virtual Vector postSelection(int selected) override;
++  virtual void movement(int selected, const Vector &pos) override;
++  virtual void updateBaseMesh() override;
++  virtual bool reload() override;
++  void setA(float value);
++  void setB(float value);
++  void setD(float value);  
++private:
++  float a, b, c, d = 0.0f;
++  std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
++  std::pair<size_t, size_t> resolution = {200, 50}; //first is bigCircle, second is channel resolution
++  std::vector<Vector> controlPoints;
++  void updateParameters();
++  float calculateX(float u, float v) const;
++  float calculateY(float u, float v) const;
++  float calculateZ(float u, float v) const;
++};
+diff --git a/params.txt b/params.txt
+new file mode 100644
+index 0000000..14229a0
+--- /dev/null
++++ b/params.txt
+@@ -0,0 +1,4 @@
++1.0
++0.98
++0.199
++0.6
+\ No newline at end of file
+diff --git a/viewer.cc b/viewer.cc
+index 647f1c5..961e05b 100644
+--- a/viewer.cc
++++ b/viewer.cc
+@@ -2,6 +2,7 @@
+ 
+ #include "bezier.hh"
+ #include "mesh.hh"
++#include "dupin.hh"
+ #include "viewer.hh"
+ 
+ Viewer::Viewer(QWidget *parent) : QGLViewer(parent) {
+@@ -65,6 +66,8 @@ bool Viewer::open(std::string filename) {
+   std::shared_ptr<Object> surface;
+   if (filename.ends_with(".bzr"))
+     surface = std::make_shared<Bezier>(filename);
++  else if (filename.ends_with(".txt"))
++      surface = std::make_shared<Dupin>(filename);
+   else
+     surface = std::make_shared<Mesh>(filename);
+   if (!surface->valid())
+@@ -406,3 +409,32 @@ void Viewer::setupCamera() {
+ 
+   update();
+ }
++
++void Viewer::setDupinA(double value) {
++  if (objects.empty())
++    return;
++  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
++  if (dupin){
++    dupin->setA(value);
++  }
++  update();
++}
++
++void Viewer::setDupinB(double value) {
++  if (objects.empty())
++    return;
++  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
++  if (dupin){
++    dupin->setB(value);
++  }
++  update();
++}
++
++void Viewer::setDupinD(double value) {
++  if (objects.empty())
++    return;
++  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
++  if (dupin)
++    dupin->setD(value);
++  update();
++}
+\ No newline at end of file
+diff --git a/viewer.hh b/viewer.hh
+index 1e475c2..a116ad5 100644
+--- a/viewer.hh
++++ b/viewer.hh
+@@ -19,15 +19,14 @@ public:
+   const double *getSlicingDir() const;
+   void setSlicingDir(double x, double y, double z);
+   double getSlicingScaling() const;
++  void setDupinA(double value);
++  void setDupinB(double value);
++  void setDupinC(double value);
++  void setDupinD(double value);
+   void setSlicingScaling(double scaling);
+   void deleteObjects();
+   bool open(std::string filename);
+ 
+-signals:
+-  void startComputation(QString message);
+-  void midComputation(int percent);
+-  void endComputation();
+-
+ protected:
+   virtual void init() override;
+   virtual void draw() override;
+diff --git a/window.cc b/window.cc
+index 0f9928e..57f098f 100644
+--- a/window.cc
++++ b/window.cc
+@@ -5,21 +5,16 @@
+ #include "window.hh"
+ 
+ Window::Window(QApplication *parent) :
+-  QMainWindow(), parent(parent), last_directory(".")
++  QMainWindow(), parent(parent), last_directory("./")
+ {
+   setWindowTitle(tr("Geometry Framework"));
+   setStatusBar(new QStatusBar);
+-  progress = new QProgressBar;
+-  progress->setMinimum(0); progress->setMaximum(100);
+-  progress->hide();
+-  statusBar()->addPermanentWidget(progress);
+ 
+   viewer = new Viewer(this);
+-  connect(viewer, &Viewer::startComputation, this, &Window::startComputation);
+-  connect(viewer, &Viewer::midComputation, this, &Window::midComputation);
+-  connect(viewer, &Viewer::endComputation, this, &Window::endComputation);
+   setCentralWidget(viewer);
+ 
++  setupParameterEditor();
++
+   auto openAction = new QAction(tr("&Open"), this);
+   openAction->setShortcut(tr("Ctrl+O"));
+   openAction->setStatusTip(tr("Load a model from a file"));
+@@ -56,12 +51,15 @@ Window::Window(QApplication *parent) :
+   visMenu->addAction(cutoffAction);
+   visMenu->addAction(rangeAction);
+   visMenu->addAction(slicingAction);
++
++  viewer->open("./params.txt");
+ }
+ 
+ void Window::open(bool clear_others) {
+   auto filename =
+     QFileDialog::getOpenFileName(this, tr("Open File"), last_directory,
+-                                 tr("Readable files (*.obj *.ply *.stl *.bzr);;"
++                                 tr("Dupin parameters (*.txt);;"
++                                    "Readable files (*.obj *.ply *.stl *.bzr);;"
+                                     "Mesh (*.obj *.ply *.stl);;"
+                                     "Bézier surface (*.bzr);;"
+                                     "All files (*.*)"));
+@@ -197,19 +195,32 @@ void Window::setSlicing() {
+   }
+ }
+ 
+-void Window::startComputation(QString message) {
+-  statusBar()->showMessage(message);
+-  progress->setValue(0);
+-  progress->show();
+-  parent->processEvents(QEventLoop::ExcludeUserInputEvents);
+-}
+-
+-void Window::midComputation(int percent) {
+-  progress->setValue(percent);
+-  parent->processEvents(QEventLoop::ExcludeUserInputEvents);
+-}
+-
+-void Window::endComputation() {
+-  progress->hide();
+-  statusBar()->clearMessage();
++void Window::setupParameterEditor() {
++  spinBoxA = new QDoubleSpinBox;
++  spinBoxB = new QDoubleSpinBox;
++  spinBoxD = new QDoubleSpinBox;
++  int min = 0; int max = 10;
++
++  spinBoxA->setRange(min, max);
++  connect(spinBoxA, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinA);
++  spinBoxB->setRange(min, max);
++  connect(spinBoxB, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinB);
++  spinBoxD->setRange(min, max);
++  connect(spinBoxD, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinD);
++
++  auto *spinBoxLayout = new QVBoxLayout;
++  spinBoxLayout->addWidget(new QLabel(tr("A")));
++  spinBoxLayout->addWidget(spinBoxA);
++  spinBoxLayout->addWidget(new QLabel(tr("B")));
++  spinBoxLayout->addWidget(spinBoxB);
++  spinBoxLayout->addWidget(new QLabel(tr("D")));
++  spinBoxLayout->addWidget(spinBoxD);
++
++  auto *spinBoxWidget = new QWidget;
++  spinBoxWidget->setLayout(spinBoxLayout);
++
++  auto *dock = new QDockWidget(tr("Parameters"), this);
++  dock->setWidget(spinBoxWidget);
++  addDockWidget(Qt::RightDockWidgetArea, dock);
++  
+ }
+diff --git a/window.hh b/window.hh
+index bd9b5ef..2e40539 100644
+--- a/window.hh
++++ b/window.hh
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <QtWidgets/QMainWindow>
++#include <QtWidgets/QSpinBox>
+ 
+ #include "viewer.hh"
+ 
+@@ -18,13 +19,13 @@ private slots:
+   void setCutoff();
+   void setRange();
+   void setSlicing();
+-  void startComputation(QString message);
+-  void midComputation(int percent);
+-  void endComputation();
++  void setupParameterEditor();
+ 
+ private:
+   QApplication *parent;
+   Viewer *viewer;
+-  QProgressBar *progress;
++  QDoubleSpinBox *spinBoxA;
++  QDoubleSpinBox *spinBoxB;
++  QDoubleSpinBox *spinBoxD;
+   QString last_directory;
+ };
