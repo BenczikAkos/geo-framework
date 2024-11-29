@@ -62,9 +62,10 @@ void Dupin::updateBaseMesh() {
         translation = 0.25 * (controlPoints[0] + controlPoints[1] + controlPoints[2] + controlPoints[3]);
     }
     for (size_t i = 0; i < resolution.first; ++i) {
-        float u = range.first + (range.second - range.first) * i / resolution.first;
+        float u = std::lerp(range.first, range.second, i / (float)resolution.first);
         for (size_t j = 0; j < resolution.second; ++j) {
-            float v = range.first + (range.second - range.first) * j / resolution.second;
+            float v = std::lerp(range.first, range.second, j / (float)resolution.second);
+            std::cout<<"U: "<<u<<" V: "<<v<<std::endl;
             float denominator = t1(v)*(c*t0(u) - d * t1(u)) - t0(u)*(c*t1(v) - a*t0(v));
             Vector p(calculateX(u, v)/denominator,
                      calculateY(u, v)/denominator,
