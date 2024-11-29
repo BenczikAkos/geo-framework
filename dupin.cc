@@ -65,7 +65,10 @@ void Dupin::updateBaseMesh() {
         float u = range.first + (range.second - range.first) * i / resolution.first;
         for (size_t j = 0; j < resolution.second; ++j) {
             float v = range.first + (range.second - range.first) * j / resolution.second;
-            Vector p(calculateX(u, v), calculateY(u, v), calculateZ(u, v));
+            float denominator = t1(v)*(c*t0(u) - d * t1(u)) - t0(u)*(c*t1(v) - a*t0(v));
+            Vector p(calculateX(u, v)/denominator,
+                     calculateY(u, v)/denominator,
+                     calculateZ(u, v)/denominator );
             handles.push_back(mesh.add_vertex(p+translation));
         }
         // Adding the starter point to the end
@@ -79,13 +82,13 @@ void Dupin::updateBaseMesh() {
         for (size_t j = 0; j < resolution.second; ++j) {
             tri.clear();
             tri.push_back(handles[i * (resolution.second + 1) + j]);
-            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
             tri.push_back(handles[i * (resolution.second + 1) + j + 1]);
+            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
             mesh.add_face(tri);
             tri.clear();
             tri.push_back(handles[i * (resolution.second + 1) + j]);
-            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j]);
             tri.push_back(handles[(i + 1) * (resolution.second + 1) + j + 1]);
+            tri.push_back(handles[(i + 1) * (resolution.second + 1) + j]);
             mesh.add_face(tri);
         }
     }
@@ -134,19 +137,26 @@ void Dupin::setD(float value) {
 }
 
 float Dupin::calculateX(float u, float v) const {
-    float numerator = d * (c - a * std::cos(u) * std::cos(v)) +  b * b * std::cos(u);
-    float denominator = a - c * std::cos(u) * std::cos(v);
-    return numerator / denominator;
+    return d*t0(v)*(c*t0(u) - d*t1(u)) - a*t1(u)*(c*t1(v) - a*t0(v)); 
 }
 
 float Dupin::calculateY(float u, float v) const {
-    float numerator = b * std::sin(u) * (a - d * std::cos(v));
-    float denominator = a - c * std::cos(u) * std::cos(v);
-    return numerator / denominator;
+   return -2.0f*b*u*(c*t1(v) - a*t0(v));
 }
 
 float Dupin::calculateZ(float u, float v) const {
-    float numerator = b * std::sin(v) * (c * std::cos(u) - d);
-    float denominator = a - c * std::cos(u) * std::cos(v);
-    return numerator / denominator;
+    return 2.0f*b*v*(c*t0(u) - d*t1(u));
+}
+
+//helper functions:
+float Dupin::t0(float t) const {
+    return 1.0f+t*t;
+}
+
+float Dupin::t1(float t) const {
+    return 1.0f-t*t;
+}
+
+float Dupin::t2(float t) const {
+    return 2.0f*t;
 }

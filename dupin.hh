@@ -18,11 +18,15 @@ public:
   void setD(float value);  
 private:
   float a, b, c, d = 0.0f;
-  std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
+  std::pair<float, float> range = {-10.0f, 10.0f};
   std::pair<size_t, size_t> resolution = {200, 50}; //first is bigCircle, second is channel resolution
   std::vector<Vector> controlPoints;
   void updateParameters();
   float calculateX(float u, float v) const;
   float calculateY(float u, float v) const;
   float calculateZ(float u, float v) const;
+  //helper functions:
+  float t0(float t) const;
+  float t1(float t) const;
+  float t2(float t) const;
 };
