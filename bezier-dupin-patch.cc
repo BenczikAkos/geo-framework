@@ -38,7 +38,7 @@ BezierDupinPatch::~BezierDupinPatch() {
 }
 
 void BezierDupinPatch::draw(const Visualization &vis) const {
-  //Object::draw(vis);
+  Object::draw(vis);
   if (vis.show_control_points) {
     glDisable(GL_LIGHTING);
     glLineWidth(3.0);

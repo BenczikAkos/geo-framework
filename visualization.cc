@@ -2,7 +2,7 @@
 
 Visualization::Visualization() :
   type(VisType::PLAIN),
-  show_control_points(true), show_solid(true), show_wireframe(false),
+  show_control_points(true), show_solid(true), show_wireframe(false), show_dupin(true),
   mean_min(0.0), mean_max(0.0), cutoff_ratio(0.05),
   slicing_dir(0, 0, 1), slicing_scaling(1)
 {

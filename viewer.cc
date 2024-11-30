@@ -248,6 +248,10 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
       vis.show_control_points = !vis.show_control_points;
       update();
       break;
+    case Qt::Key_D:
+      vis.show_dupin = !vis.show_dupin;
+      update();
+      break;
     case Qt::Key_S:
       vis.show_solid = !vis.show_solid;
       update();
