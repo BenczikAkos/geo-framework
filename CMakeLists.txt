@@ -54,6 +54,7 @@ add_executable(geo-framework WIN32
   ${geo_HEADERS_MOC}
   textures.qrc
   bezier.cc
+  bezier-dupin-patch.cc
   main.cc
   mesh.cc
   dupin.cc

@@ -12,6 +12,7 @@ Dupin::~Dupin() {
 
 void Dupin::draw(const Visualization &vis) const {
     Object::draw(vis);
+    patch->draw(vis);
     if(vis.show_control_points){
         glDisable(GL_LIGHTING);
         glColor3d(0.3, 0.3, 1.0);
@@ -113,6 +114,7 @@ bool Dupin::reload() {
     for(auto i : x){
         controlPoints.push_back(Vector(i, 0.0f, 0.0f));
     }
+    patch = std::make_shared<BezierDupinPatch>(a, b, c, d, std::make_pair(0.1, 0.5), std::make_pair(2.3, 3.4));
     return true;
 }
 
