@@ -114,7 +114,7 @@ bool Dupin::reload() {
     for(auto i : x){
         controlPoints.push_back(Vector(i, 0.0f, 0.0f));
     }
-    patch = std::make_shared<BezierDupinPatch>(a, b, c, d, std::make_pair(0.1, 0.5), std::make_pair(2.3, 3.4));
+    patch = new BezierDupinPatch(a, b, c, d, std::make_pair(0.1, 0.5), std::make_pair(2.3, 3.4));
     return true;
 }
 

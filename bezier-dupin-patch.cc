@@ -3,10 +3,10 @@
 BezierDupinPatch::BezierDupinPatch(float a, float b, float c, float d, std::pair<double, double> uRange, std::pair<double, double> vRange) : Object("") {
     control_points.resize(9);
     weights.resize(9);
-    std::vector<double> g{3};
-    std::vector<double> h{3};
-    std::vector<double> G{3};
-    std::vector<double> H{3};
+    std::vector<double> g(3);
+    std::vector<double> h(3);
+    std::vector<double> G(3);
+    std::vector<double> H(3);
     g[0] = std::tan(0.5 * uRange.first);
     g[2] = std::tan(0.5 * uRange.second);
     g[1] = 0.5 * (g[0] + g[2]);
@@ -38,17 +38,16 @@ BezierDupinPatch::~BezierDupinPatch() {
 }
 
 void BezierDupinPatch::draw(const Visualization &vis) const {
-    Object::draw(vis);
+  //Object::draw(vis);
   if (vis.show_control_points) {
     glDisable(GL_LIGHTING);
     glLineWidth(3.0);
     glColor3d(0.3, 0.3, 1.0);
-    size_t m = 2 + 1;
     for (size_t k = 0; k < 2; ++k)
       for (size_t i = 0; i <= 2; ++i) {
         glBegin(GL_LINE_STRIP);
         for (size_t j = 0; j <= 2; ++j) {
-          size_t const index = k ? j * m + i : i * m + j;
+          size_t const index = k ? j * 3 + i : i * 3 + j;
           const auto &p = control_points[index];
           glVertex3dv(p.data());
         }
