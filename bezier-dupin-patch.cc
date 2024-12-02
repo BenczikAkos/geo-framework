@@ -127,13 +127,13 @@ void BezierDupinPatch::updateBaseMesh() {
     for (size_t j = 0; j < resolution - 1; ++j) {
       tri.clear();
       tri.push_back(handles[i * resolution + j]);
-      tri.push_back(handles[i * resolution + j + 1]);
       tri.push_back(handles[(i + 1) * resolution + j]);
+      tri.push_back(handles[i * resolution + j + 1]);
       mesh.add_face(tri);
       tri.clear();
       tri.push_back(handles[(i + 1) * resolution + j]);
-      tri.push_back(handles[i * resolution + j + 1]);
       tri.push_back(handles[(i + 1) * resolution + j + 1]);
+      tri.push_back(handles[i * resolution + j + 1]);
       mesh.add_face(tri);
     }
   Object::updateBaseMesh(false, false);
