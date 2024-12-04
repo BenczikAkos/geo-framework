@@ -13,6 +13,7 @@ class Window : public QMainWindow {
 
 public:
   explicit Window(QApplication *parent);
+  void setParameterSpinBoxes(double a, double b, double d);
 
 private slots:
   void open(bool clear_others);

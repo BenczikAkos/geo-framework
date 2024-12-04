@@ -3,7 +3,8 @@
 #include "dupin.hh"
 #include <cmath>
 
-Dupin::Dupin(std::string filename) : Object(filename) {
+Dupin::Dupin(std::string filename, QWidget *parent) : Object(filename) {
+  window = qobject_cast<Window*>(parent);
   reload();
 }
 
@@ -55,7 +56,7 @@ void Dupin::updateParameters() {
     d = 0.25 * (controlPoints[0][0] - controlPoints[1][0] + controlPoints[2][0] - controlPoints[3][0]);
     c = -0.25 * (controlPoints[0][0] - controlPoints[1][0] - controlPoints[2][0] + controlPoints[3][0]);
     b = std::sqrt(a*a - c*c);
-
+    window->setParameterSpinBoxes(a, b, d);
     //updateBaseMesh();
 }
 

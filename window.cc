@@ -55,6 +55,14 @@ Window::Window(QApplication *parent) :
   viewer->open("../../../Dupin/params.txt");
 }
 
+void Window::setParameterSpinBoxes(double a, double b, double d) {
+  blockSignals(true);
+  spinBoxA->setValue(a);
+  spinBoxB->setValue(b);
+  spinBoxD->setValue(d);
+  blockSignals(false);
+}
+
 void Window::open(bool clear_others) {
   auto filename =
     QFileDialog::getOpenFileName(this, tr("Open File"), last_directory,

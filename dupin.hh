@@ -1,12 +1,13 @@
 #pragma once
 
 #include "object.hh"
+#include "window.hh"
 #include "bezier-dupin-patch.hh"
 #include <memory>
 
 class Dupin : public Object {
 public:
-  Dupin(std::string filename);
+  Dupin(std::string filename, QWidget *parent);
   virtual ~Dupin();
   virtual void draw(const Visualization &vis) const override;
   virtual void drawWithNames(const Visualization &vis) const override;
@@ -18,6 +19,7 @@ public:
   void setB(float value);
   void setD(float value);  
 private:
+  Window *window;
   float a, b, c, d = 0.0f;
   std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
   std::pair<size_t, size_t> resolution = {200, 50}; //first is bigCircle, second is channel resolution

@@ -68,7 +68,7 @@ bool Viewer::open(std::string filename) {
   if (filename.ends_with(".bzr"))
     surface = std::make_shared<Bezier>(filename);
   else if (filename.ends_with(".txt"))
-      surface = std::make_shared<Dupin>(filename);
+      surface = std::make_shared<Dupin>(filename, this->parentWidget());
   else
     surface = std::make_shared<Mesh>(filename);
   if (!surface->valid())
