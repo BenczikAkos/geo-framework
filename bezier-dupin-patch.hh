@@ -4,7 +4,7 @@
 
 class BezierDupinPatch : public Object {
 public:
-    BezierDupinPatch(float a, float b, float c, float d, std::pair<double, double> uRange, std::pair<double, double> vRange);
+    BezierDupinPatch(float a, float b, float c, float d, std::pair<double, double> uRange, std::pair<double, double> vRange, std::vector<Vector> dupin_control_points);
     virtual ~BezierDupinPatch();
     virtual void draw(const Visualization &vis) const override;
     virtual void drawWithNames(const Visualization &vis) const override;

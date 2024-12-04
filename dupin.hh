@@ -22,7 +22,7 @@ private:
   std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
   std::pair<size_t, size_t> resolution = {200, 50}; //first is bigCircle, second is channel resolution
   std::vector<Vector> controlPoints;
-  BezierDupinPatch *patch;
+  std::unique_ptr<BezierDupinPatch> patch;
   void updateParameters();
   float calculateX(float u, float v) const;
   float calculateY(float u, float v) const;

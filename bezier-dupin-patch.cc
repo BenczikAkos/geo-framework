@@ -1,6 +1,9 @@
 #include "bezier-dupin-patch.hh"
 
-BezierDupinPatch::BezierDupinPatch(float a, float b, float c, float d, std::pair<double, double> uRange, std::pair<double, double> vRange) : Object("") {
+BezierDupinPatch::BezierDupinPatch(float a, float b, float c, float d,
+                                  std::pair<double, double> uRange,
+                                  std::pair<double, double> vRange,
+                                  std::vector<Vector> dupin_control_points) : Object("") {
     control_points.resize(9);
     weights.resize(9);
     std::vector<double> g(3);
@@ -19,6 +22,10 @@ BezierDupinPatch::BezierDupinPatch(float a, float b, float c, float d, std::pair
     H[0] = h[0] * h[0];
     H[1] = h[0] * h[2];
     H[2] = h[2] * h[2];
+    Vector translation = Vector(0.0f, 0.0f, 0.0f);
+    if(dupin_control_points.size() == 4) {
+        translation = 0.25 * (dupin_control_points[0] + dupin_control_points[1] + dupin_control_points[2] + dupin_control_points[3]);
+    }
     for(size_t i = 0; i < 3; ++i){
         for(size_t j = 0; j < 3; ++j){
             size_t index = i * 3 + j;
@@ -27,7 +34,7 @@ BezierDupinPatch::BezierDupinPatch(float a, float b, float c, float d, std::pair
             double CPx = b*b*(1.0-G[i])/(1.0+G[i]) - d*a*(1.0-G[i])/(1.0+G[i])*(1.0-H[j])/(1.0+H[j]) + d*c;
             double CPy = 2.0*b* (g[i]/(1.0+G[i])) * (a-d*(1.0-H[j])/(1.0+H[j]));
             double CPz = 2.0*b*(c*((1.0-G[i])/(1.0+G[i])) - d) * (h[j]/(1+H[j]));
-            control_points[index] = CPdenominator * Vector(CPx, CPy, CPz);
+            control_points[index] = CPdenominator * Vector(CPx, CPy, CPz) + translation;
         }
     }
     updateBaseMesh();

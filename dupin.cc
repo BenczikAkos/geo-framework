@@ -45,6 +45,7 @@ Vector Dupin::postSelection(int selected) {
 }
 
 void Dupin::movement(int selected, const Vector &pos) {
+
   controlPoints[selected] = Vector(pos[0], controlPoints[selected][1], controlPoints[selected][2]);
   updateParameters();
 }
@@ -54,7 +55,8 @@ void Dupin::updateParameters() {
     d = 0.25 * (controlPoints[0][0] - controlPoints[1][0] + controlPoints[2][0] - controlPoints[3][0]);
     c = -0.25 * (controlPoints[0][0] - controlPoints[1][0] - controlPoints[2][0] + controlPoints[3][0]);
     b = std::sqrt(a*a - c*c);
-    updateBaseMesh();
+
+    //updateBaseMesh();
 }
 
 void Dupin::updateBaseMesh() {
@@ -92,6 +94,7 @@ void Dupin::updateBaseMesh() {
             mesh.add_face(tri);
         }
     }
+    patch = std::make_unique<BezierDupinPatch>(a, b, c, d, std::make_pair(4.1, 4.5), std::make_pair(4.3, 5.4), controlPoints);
     Object::updateBaseMesh(false, false);
 }
 
@@ -116,7 +119,6 @@ bool Dupin::reload() {
     for(auto i : x){
         controlPoints.push_back(Vector(i, 0.0f, 0.0f));
     }
-    patch = new BezierDupinPatch(a, b, c, d, std::make_pair(4.1, 4.5), std::make_pair(4.3, 5.4));
     return true;
 }
 
