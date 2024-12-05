@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QSpinBox>
+#include <QtWidgets/QLabel>
 
 #include "viewer.hh"
 
@@ -25,8 +25,9 @@ private slots:
 private:
   QApplication *parent;
   Viewer *viewer;
-  QDoubleSpinBox *spinBoxA;
-  QDoubleSpinBox *spinBoxB;
-  QDoubleSpinBox *spinBoxD;
+  QLabel *labelA;
+  QLabel *labelB;
+  QLabel *labelC;
+  QLabel *labelD;
   QString last_directory;
 };

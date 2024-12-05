@@ -56,11 +56,10 @@ Window::Window(QApplication *parent) :
 }
 
 void Window::setParameterSpinBoxes(double a, double b, double d) {
-  blockSignals(true);
-  spinBoxA->setValue(a);
-  spinBoxB->setValue(b);
-  spinBoxD->setValue(d);
-  blockSignals(false);
+  labelA->setText(tr("A: ") + QString::number(a));
+  labelB->setText(tr("B: ") + QString::number(b));
+  labelC->setText(tr("C: ") + QString::number(std::sqrt(a*a - b*b)));
+  labelD->setText(tr("D: ") + QString::number(d));
 }
 
 void Window::open(bool clear_others) {
@@ -204,31 +203,23 @@ void Window::setSlicing() {
 }
 
 void Window::setupParameterEditor() {
-  spinBoxA = new QDoubleSpinBox;
-  spinBoxB = new QDoubleSpinBox;
-  spinBoxD = new QDoubleSpinBox;
-  int min = 0; int max = 10;
+  labelA = new QLabel(tr("A:"));
+  labelB = new QLabel(tr("B:"));
+  labelC = new QLabel(tr("C:"));
+  labelD = new QLabel(tr("D:"));
 
-  spinBoxA->setRange(min, max);
-  connect(spinBoxA, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinA);
-  spinBoxB->setRange(min, max);
-  connect(spinBoxB, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinB);
-  spinBoxD->setRange(min, max);
-  connect(spinBoxD, &QDoubleSpinBox::valueChanged, viewer, &Viewer::setDupinD);
 
-  auto *spinBoxLayout = new QVBoxLayout;
-  spinBoxLayout->addWidget(new QLabel(tr("A")));
-  spinBoxLayout->addWidget(spinBoxA);
-  spinBoxLayout->addWidget(new QLabel(tr("B")));
-  spinBoxLayout->addWidget(spinBoxB);
-  spinBoxLayout->addWidget(new QLabel(tr("D")));
-  spinBoxLayout->addWidget(spinBoxD);
+  auto *labelLayout = new QVBoxLayout;
+  labelLayout->addWidget(labelA);
+  labelLayout->addWidget(labelB);
+  labelLayout->addWidget(labelC);
+  labelLayout->addWidget(labelD);
 
-  auto *spinBoxWidget = new QWidget;
-  spinBoxWidget->setLayout(spinBoxLayout);
+  auto *labelWidget = new QWidget;
+  labelWidget->setLayout(labelLayout);
 
   auto *dock = new QDockWidget(tr("Parameters"), this);
-  dock->setWidget(spinBoxWidget);
+  dock->setWidget(labelWidget);
   addDockWidget(Qt::RightDockWidgetArea, dock);
   
 }

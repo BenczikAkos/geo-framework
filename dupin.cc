@@ -100,17 +100,15 @@ void Dupin::updateBaseMesh() {
 }
 
 bool Dupin::reload() {
-    float read_a, read_b, read_c, read_d = 0.0f;
+    float a, b, d = 0.0f;
     try {
         std::ifstream f(filename);
         f.exceptions(std::ios::failbit | std::ios::badbit);
-        f >> read_a >> read_b >> read_c >> read_d;
-        a = read_a; b = read_b; c = read_c; d = read_d;
-
+        f >> a >> b >> d;
     } catch (std::ios_base::failure &e) {
         return false;
     }
-    updateBaseMesh();
+    c = std::sqrt(a*a - b*b);
 
     std::vector<float> x;
     x.push_back(a-c+d);
@@ -120,6 +118,8 @@ bool Dupin::reload() {
     for(auto i : x){
         controlPoints.push_back(Vector(i, 0.0f, 0.0f));
     }
+    updateParameters();
+    updateBaseMesh();
     return true;
 }
 
