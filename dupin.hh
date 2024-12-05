@@ -17,12 +17,15 @@ public:
   virtual bool reload() override;
   void modifyA(float value);
   void modifyB(float value);
-  void modifyD(float value);  
+  void modifyD(float value);
+  void modifyPatch(float value);
 private:
   Window *window;
   float a, b, c, d = 0.0f;
   std::pair<float, float> range = {0.0f, std::numbers::pi * 2.0f};
   std::pair<size_t, size_t> resolution = {200, 50}; //first is bigCircle, second is channel resolution
+  std::pair<float, float> patch_u = {2.1f, 3.1f};
+  std::pair<float, float> patch_v = {2.1f, 3.1f};
   std::vector<Vector> controlPoints;
   std::unique_ptr<BezierDupinPatch> patch;
   void updateParameters();

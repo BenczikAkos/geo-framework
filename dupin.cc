@@ -103,7 +103,7 @@ void Dupin::updateBaseMesh() {
             mesh.add_face(tri);
         }
     }
-    patch = std::make_unique<BezierDupinPatch>(a, b, c, d, std::make_pair(4.1, 4.5), std::make_pair(4.3, 5.4), controlPoints);
+    patch = std::make_unique<BezierDupinPatch>(a, b, c, d, patch_u, patch_v, controlPoints);
     Object::updateBaseMesh(false, false);
 }
 
@@ -152,6 +152,12 @@ void Dupin::modifyD(float value) {
     updateControlPoints();
     window->setParameterSpinBoxes(a, b, d);
     updateBaseMesh();
+}
+
+void Dupin::modifyPatch(float value) {
+    patch_u.second += value;
+    patch_v.second += value;
+    patch = std::make_unique<BezierDupinPatch>(a, b, c, d, patch_u, patch_v, controlPoints);
 }
 
 float Dupin::calculateX(float u, float v) const {

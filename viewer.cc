@@ -286,11 +286,15 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     const float parameterModifyValue = 0.01;
     switch (e->key()) {
     case Qt::Key_Plus:
-      vis.slicing_scaling *= 2;
+      if(dupin){
+        dupin->modifyPatch(parameterModifyValue);
+      }
       update();
       break;
     case Qt::Key_Minus:
-      vis.slicing_scaling /= 2;
+      if(dupin){
+        dupin->modifyPatch(-parameterModifyValue);
+      }
       update();
       break;
     case Qt::Key_Asterisk:
