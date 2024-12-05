@@ -15,9 +15,9 @@ public:
   virtual void movement(int selected, const Vector &pos) override;
   virtual void updateBaseMesh() override;
   virtual bool reload() override;
-  void setA(float value);
-  void setB(float value);
-  void setD(float value);  
+  void modifyA(float value);
+  void modifyB(float value);
+  void modifyD(float value);  
 private:
   Window *window;
   float a, b, c, d = 0.0f;
@@ -26,6 +26,7 @@ private:
   std::vector<Vector> controlPoints;
   std::unique_ptr<BezierDupinPatch> patch;
   void updateParameters();
+  void updateControlPoints();
   float calculateX(float u, float v) const;
   float calculateY(float u, float v) const;
   float calculateZ(float u, float v) const;

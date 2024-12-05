@@ -60,6 +60,14 @@ void Dupin::updateParameters() {
     //updateBaseMesh();
 }
 
+void Dupin::updateControlPoints() {
+    controlPoints.clear();
+    controlPoints.push_back(Vector(a-c+d, 0.0f, 0.0f));
+    controlPoints.push_back(Vector(a+c-d, 0.0f, 0.0f));
+    controlPoints.push_back(Vector(-a+c+d, 0.0f, 0.0f));
+    controlPoints.push_back(Vector(-a-c-d, 0.0f, 0.0f));
+}
+
 void Dupin::updateBaseMesh() {
     mesh.clear();
     std::vector<BaseMesh::VertexHandle> handles, tri;
@@ -123,20 +131,26 @@ bool Dupin::reload() {
     return true;
 }
 
-void Dupin::setA(float value) {
-    a = value;
+void Dupin::modifyA(float value) {
+    a += value;
     c = std::sqrt(a*a - b*b);
+    updateControlPoints();
+    window->setParameterSpinBoxes(a, b, d);
     updateBaseMesh();
 }
 
-void Dupin::setB(float value) {
-    b = value;
+void Dupin::modifyB(float value) {
+    b += value;
     c = std::sqrt(a*a - b*b);
+    updateControlPoints();
+    window->setParameterSpinBoxes(a, b, d);
     updateBaseMesh();
 }
 
-void Dupin::setD(float value) {
-    d = value;
+void Dupin::modifyD(float value) {
+    d += value;
+    updateControlPoints();
+    window->setParameterSpinBoxes(a, b, d);
     updateBaseMesh();
 }
 

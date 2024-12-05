@@ -281,7 +281,9 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
     default:
       QGLViewer::keyPressEvent(e);
     }
-  else if (e->modifiers() == Qt::KeypadModifier)
+  else if (e->modifiers() == Qt::KeypadModifier){
+    auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
+    const float parameterModifyValue = 0.01;
     switch (e->key()) {
     case Qt::Key_Plus:
       vis.slicing_scaling *= 2;
@@ -295,6 +297,44 @@ void Viewer::keyPressEvent(QKeyEvent *e) {
       vis.slicing_dir = Vector(static_cast<double *>(camera()->viewDirection()));
       update();
       break;
+    case Qt::Key_7:
+      if (dupin){
+        dupin->modifyA(-parameterModifyValue);
+      }
+      update();
+      break;
+    case Qt::Key_8:
+      if (dupin){
+        dupin->modifyA(parameterModifyValue);
+      }
+      update();
+      break;
+    case Qt::Key_4:
+      if (dupin){
+        dupin->modifyB(-parameterModifyValue);
+      }
+      update();
+      break;
+    case Qt::Key_5:
+      if (dupin){
+        dupin->modifyB(parameterModifyValue);
+      }
+      update();
+      break;
+    case Qt::Key_1:
+      if (dupin){
+        dupin->modifyD(-parameterModifyValue);
+      }
+      update();
+      break;
+    case Qt::Key_2:
+      if (dupin){
+        dupin->modifyD(parameterModifyValue);
+      }
+      update();
+      break;
+    }
+
     } else
     QGLViewer::keyPressEvent(e);
 }
@@ -412,34 +452,5 @@ void Viewer::setupCamera() {
   setSelectedName(-1);
   axes.shown = false;
 
-  update();
-}
-
-void Viewer::setDupinA(double value) {
-  if (objects.empty())
-    return;
-  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin){
-    dupin->setA(value);
-  }
-  update();
-}
-
-void Viewer::setDupinB(double value) {
-  if (objects.empty())
-    return;
-  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin){
-    dupin->setB(value);
-  }
-  update();
-}
-
-void Viewer::setDupinD(double value) {
-  if (objects.empty())
-    return;
-  auto dupin = std::dynamic_pointer_cast<Dupin>(objects.back());
-  if (dupin)
-    dupin->setD(value);
   update();
 }
