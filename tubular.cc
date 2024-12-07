@@ -65,6 +65,7 @@ void Tubular::updateBaseMesh() {
             vertices.push_back(vertex);
             auto v_handle = mesh.add_vertex(vertex);
             mesh.set_normal(v_handle, ru(u, v)%rv(u, v));
+            mesh.data(v_handle).mean = meanCurvature(v_handle);
             handles.push_back(v_handle);
         }
         handles.push_back(handles[i * u_resolution + i]); // Close the loop
@@ -83,7 +84,7 @@ void Tubular::updateBaseMesh() {
             mesh.add_face(tri);
         }
     }
-    Object::updateBaseMesh(false, false); //TODO: exact normal and curvature calculator
+    Object::updateBaseMesh(true, true); //TODO: exact normal and curvature calculator
 }
 
 bool Tubular::reload() {
@@ -136,13 +137,13 @@ Point Tubular::evaluate(double u, double v, VectorVector &c0_der, VectorVector &
     return vertex;
 }
 
-// Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
-//     return Vector(0.0); // TODO
-// }
+Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
+    return mesh.normal(vh).normalized();
+}
 
-// double Tubular::meanCurvature(BaseMesh::VertexHandle vh) const {
-//     return 0.0; // TODO
-// }
+double Tubular::meanCurvature(BaseMesh::VertexHandle vh) const {
+    return mesh.data(vh).mean;
+}
 
 #pragma region HelperFuncs
 double Tubular::F0(double v) const {
@@ -182,8 +183,8 @@ Vector Tubular::ru(double u, double v) const {
     VectorVector c0_der, c1_der;
     c0_der.resize(4); c0.derivatives(u, 3, c0_der);
     c1_der.resize(4); c1.derivatives(u, 3, c1_der);
-    auto dB0 = c0_der[1]%c0_der[3];
-    auto dB1 = c1_der[1]%c1_der[3];
+    Vector dB0 = c0_der[1]%c0_der[3]; // + c0_der[2]%c0_der[2] = 0
+    Vector dB1 = c1_der[1]%c1_der[3]; // + c1_der[2]%c1_der[2] = 0
     return c0_der[1] * F0(v) + mu * dB0 * G0(v) + c1_der[1] * F1(v) + mu * dB1 * G1(v);
 }
 
@@ -193,7 +194,50 @@ Vector Tubular::rv(double u, double v) const {
     Point C0_u = c0.derivatives(u, 2, c0_der);
     c1_der.resize(3);
     Point C1_u =  c1.derivatives(u, 2, c1_der);
-    auto B0 = c0_der[1]%c0_der[2];
-    auto B1 = c1_der[1]%c1_der[2];
+    Vector B0 = c0_der[1]%c0_der[2];
+    Vector B1 = c1_der[1]%c1_der[2];
     return C0_u * dF0(v) + mu * B0 * dG0(v) + C1_u * dF1(v) + mu * B1 * dG1(v);
 }
+
+Vector Tubular::ruu(double u, double v) const {
+    VectorVector c0_der, c1_der;
+    c0_der.resize(5); c0.derivatives(u, 4, c0_der);
+    c1_der.resize(5); c1.derivatives(u, 4, c1_der);
+    auto d2B0 = c0_der[1]%c0_der[4] + c0_der[2]%c0_der[3];
+    auto d2B1 = c1_der[1]%c1_der[4] + c1_der[2]%c1_der[3];
+    return c0_der[2] * F0(v) + mu * d2B0 * G0(v) + c1_der[2] * F1(v) + mu * d2B1 * G1(v);
+}
+
+Vector Tubular::rvv(double u, double v) const {
+    VectorVector c0_der, c1_der;
+    c0_der.resize(3); 
+    Point C0_u = c0.derivatives(u, 2, c0_der);
+    c1_der.resize(3);
+    Point C1_u =  c1.derivatives(u, 2, c1_der);
+    auto B0 = c0_der[1]%c0_der[2];
+    auto B1 = c1_der[1]%c1_der[2];
+    return C0_u * (12.0 * v - 6.0)
+        + mu * B0 * (6.0 * v - 4.0) 
+        + C1_u * (-12.0 * v - 6.0) 
+        + mu * B1 * (6.0 * v - 2.0);
+}
+
+Vector Tubular::ruv(double u, double v) const {
+    VectorVector c0_der, c1_der;
+    c0_der.resize(4); c0.derivatives(u, 3, c0_der);
+    c1_der.resize(4); c1.derivatives(u, 3, c1_der);
+    auto dB0 = c0_der[1]%c0_der[3];
+    auto dB1 = c1_der[1]%c1_der[3];
+    return c0_der[1] * dF0(v) + mu * dB0 * dG0(v) + c1_der[1] * dF1(v) + mu * dB1 * dG1(v);
+}
+
+double Tubular::calculateMeanCurvature(double u, double v) const {
+    double E = ru(u, v) | ru(u, v);
+    double F = ru(u, v) | rv(u, v);
+    double G = rv(u, v) | rv(u, v);
+    double L = ruu(u, v) | (ru(u,v) % rv(u, v));
+    double M = ruv(u, v) | (ru(u,v) % rv(u, v));
+    double N = rvv(u, v) | (ru(u,v) % rv(u, v));
+    return (N * E - 2.0 * M * F + L * G) / (2.0 * (E * G - F * F));
+}
+

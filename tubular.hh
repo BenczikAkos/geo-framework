@@ -10,13 +10,13 @@ public:
   virtual void drawWithNames(const Visualization &vis) const override;
   virtual Vector postSelection(int selected) override;
   virtual void movement(int selected, const Vector &pos) override;
-  virtual void updateBaseMesh() override;
   virtual bool reload() override;
 
   void updateMu(double newMu);
 protected:
-  //virtual Vector normal(BaseMesh::VertexHandle vh) const override;
-  //virtual double meanCurvature(BaseMesh::VertexHandle vh) const override;
+  virtual void updateBaseMesh() override;
+  virtual Vector normal(BaseMesh::VertexHandle vh) const override;
+  virtual double meanCurvature(BaseMesh::VertexHandle vh) const override;
 private:
     void readBSpline(std::ifstream &input, BSpline &result);
     std::vector<Point> vertices;
@@ -31,6 +31,10 @@ private:
     double dG1(double v) const;
     Vector ru(double u, double v) const;
     Vector rv(double u, double v) const;
+    Vector ruu(double u, double v) const;
+    Vector rvv(double u, double v) const;
+    Vector ruv(double u, double v) const;
+    double calculateMeanCurvature(double u, double v) const;
     BSpline c0;
     BSpline c1;
     double mu = 1.0;
