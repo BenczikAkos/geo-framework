@@ -65,7 +65,7 @@ void Tubular::updateBaseMesh() {
             auto vertex = evaluate(u, v, c0_der, c1_der);
             vertices.push_back(vertex);
             auto v_handle = mesh.add_vertex(vertex);
-            mesh.set_normal(v_handle, ru(u, v)%rv(u, v));
+            mesh.set_normal(v_handle, (ru(u, v)%rv(u, v)).normalized());
             mesh.data(v_handle).mean = calculateMeanCurvature(u,v); //TODO: fix
             handles.push_back(v_handle);
         }
@@ -138,7 +138,7 @@ Point Tubular::evaluate(double u, double v, VectorVector &c0_der, VectorVector &
 }
 
 Vector Tubular::normal(BaseMesh::VertexHandle vh) const {
-    return mesh.normal(vh).normalized();
+    return mesh.normal(vh);
 }
 
 double Tubular::meanCurvature(BaseMesh::VertexHandle vh) const {
@@ -181,7 +181,6 @@ double Tubular::dG1(double v) const {
 
 Vector Tubular::ru(double u, double v) const {
     VectorVector c0_der, c1_der;
-    //u = std::lerp(c0.knots.front(), c0.knots.back(), u);
     c0_der.resize(4); c0.derivatives(u, 3, c0_der);
     c1_der.resize(4); c1.derivatives(u, 3, c1_der);
     Vector dB0 = c0_der[1]%c0_der[3]; // + c0_der[2]%c0_der[2] = 0
@@ -220,7 +219,7 @@ Vector Tubular::rvv(double u, double v) const {
     auto B1 = c1_der[1]%c1_der[2];
     return C0_u * (12.0 * v - 6.0)
         + mu * B0 * (6.0 * v - 4.0) 
-        + C1_u * (-12.0 * v - 6.0) 
+        + C1_u * (-12.0 * v + 6.0) 
         + mu * B1 * (6.0 * v - 2.0);
 }
 
@@ -237,9 +236,10 @@ double Tubular::calculateMeanCurvature(double u, double v) const {
     double E = ru(u, v) | ru(u, v);
     double F = ru(u, v) | rv(u, v);
     double G = rv(u, v) | rv(u, v);
-    double L = ruu(u, v) | (ru(u,v) % rv(u, v));
-    double M = ruv(u, v) | (ru(u,v) % rv(u, v));
-    double N = rvv(u, v) | (ru(u,v) % rv(u, v));
-    return (N * E - 2.0 * M * F + L * G) / (2.0 * (E * G - F * F));
+    Vector n = (ru(u, v)%rv(u, v)).normalized();
+    double L = ruu(u, v) | n;
+    double M = ruv(u, v) | n;
+    double N = rvv(u, v) | n;
+    return (N*E - 2.0*M*F + L*G) / (2.0 * (E*G - F*F));
 }
 
