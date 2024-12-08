@@ -60,12 +60,13 @@ void Tubular::updateBaseMesh() {
         double v = i / (double)v_resolution;
         for(int j = 0; j < u_resolution; ++j) {
             double u = j / (double)u_resolution;
+            u = std::lerp(c0.knots.front(), c0.knots.back(), u);
             VectorVector c0_der, c1_der;
             auto vertex = evaluate(u, v, c0_der, c1_der);
             vertices.push_back(vertex);
             auto v_handle = mesh.add_vertex(vertex);
             mesh.set_normal(v_handle, ru(u, v)%rv(u, v));
-            mesh.data(v_handle).mean = meanCurvature(v_handle);
+            mesh.data(v_handle).mean = calculateMeanCurvature(u,v); //TODO: fix
             handles.push_back(v_handle);
         }
         handles.push_back(handles[i * u_resolution + i]); // Close the loop
@@ -128,7 +129,6 @@ void Tubular::readBSpline(std::ifstream &input, BSpline &result) {
 Point Tubular::evaluate(double u, double v, VectorVector &c0_der, VectorVector &c1_der) const {
     c0_der.resize(3);
     c1_der.resize(3);
-    u = std::lerp(c0.knots.front(), c0.knots.back(), u);
     Point C0_u = c0.derivatives(u, 2, c0_der);
     Point C1_u = c1.derivatives(u, 2, c1_der);
     Point B0 = c0_der[1]%c0_der[2];
@@ -181,10 +181,12 @@ double Tubular::dG1(double v) const {
 
 Vector Tubular::ru(double u, double v) const {
     VectorVector c0_der, c1_der;
+    //u = std::lerp(c0.knots.front(), c0.knots.back(), u);
     c0_der.resize(4); c0.derivatives(u, 3, c0_der);
     c1_der.resize(4); c1.derivatives(u, 3, c1_der);
     Vector dB0 = c0_der[1]%c0_der[3]; // + c0_der[2]%c0_der[2] = 0
     Vector dB1 = c1_der[1]%c1_der[3]; // + c1_der[2]%c1_der[2] = 0
+    auto result = c0_der[1] * F0(v) + mu * dB0 * G0(v) + c1_der[1] * F1(v) + mu * dB1 * G1(v);
     return c0_der[1] * F0(v) + mu * dB0 * G0(v) + c1_der[1] * F1(v) + mu * dB1 * G1(v);
 }
 
