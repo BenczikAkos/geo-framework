@@ -7,8 +7,7 @@
 #include "window.hh"
 
 Window::Window(QApplication *parent) :
-  QMainWindow(), parent(parent), last_directory("../../../hf2")
-  //TODO: Change the last_directory to "." before release
+  QMainWindow(), parent(parent), last_directory("./")
 {
   setWindowTitle(tr("Geometry Framework"));
   setStatusBar(new QStatusBar);
@@ -80,7 +79,6 @@ void Window::open(bool clear_others) {
   auto filename =
     QFileDialog::getOpenFileName(this, tr("Open File"), last_directory,
                                  tr("Tubular files (*.tub);;"
-                                    "Bspline files (*.bspline);;"//TODO: remove this
                                     "Readable files (*.obj *.ply *.stl *.bzr);;"
                                     "Mesh (*.obj *.ply *.stl);;"
                                     "Bézier surface (*.bzr);;"
