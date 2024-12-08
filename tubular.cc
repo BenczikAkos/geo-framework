@@ -66,7 +66,7 @@ void Tubular::updateBaseMesh() {
             vertices.push_back(vertex);
             auto v_handle = mesh.add_vertex(vertex);
             mesh.set_normal(v_handle, (ru(u, v)%rv(u, v)).normalized());
-            mesh.data(v_handle).mean = calculateMeanCurvature(u,v); //TODO: fix
+            mesh.data(v_handle).mean = -1.0 * calculateMeanCurvature(u,v); //TODO: fix
             handles.push_back(v_handle);
         }
         handles.push_back(handles[i * u_resolution + i]); // Close the loop
